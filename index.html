@@ -60,7 +60,7 @@ body{
   -webkit-text-size-adjust:100%;
   padding-left:max(16px, env(safe-area-inset-left, 0px));
   padding-right:max(16px, env(safe-area-inset-right, 0px));
-  padding-block:0 calc(84px + env(safe-area-inset-bottom, 0px));
+  padding-block:0 calc(24px + env(safe-area-inset-bottom, 0px));
 }
 body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top, 0px); z-index:10; background:var(--bg)}
 a{color:inherit}
@@ -225,7 +225,6 @@ button{font:inherit; color:inherit}
   </header>
   <main id="view"></main>
 </div>
-<nav class="tabbar" aria-label="Sections"><div class="in" id="tabs"></div></nav>
 
 <script>
 /* ---------- Data: straight from the planner sheet, B1:J15 ---------- */
@@ -779,6 +778,7 @@ function renderStrip(){
   if (cur && cur.scrollIntoView) { try { cur.scrollIntoView({block:'nearest', inline:'center', behavior:'instant'}); } catch(e) { cur.scrollIntoView(); } }
 }
 function renderTabs(){
+  if (!$('#tabs')) return;
   $('#tabs').innerHTML = TABS.map(t => '<button class="tab" data-tab="'+t.id+'" aria-current="'+(current.tab===t.id)+'">'+t.icon+'<span>'+t.label+'</span></button>').join('');
 }
 function render(){
