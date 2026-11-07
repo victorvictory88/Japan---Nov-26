@@ -101,6 +101,9 @@ button{font:inherit; color:inherit}
 .mapcard{background:var(--surface); border:1px solid var(--line); border-radius:16px; overflow:hidden; margin:10px 0 6px}
 .mapcard .maphead{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:10px 12px 0}
 .mapcard .maphead .eyebrow{color:var(--ink-2)}
+.seg{display:inline-flex; padding:2px; border-radius:9px; background:var(--surface-2); gap:2px}
+.seg button{border:0; background:transparent; color:var(--ink-2); font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.04em; padding:5px 10px; border-radius:7px; cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.12)}
 .mapcard .mapwrap{position:relative; display:block; background:var(--surface-2)}
 .mapcard .mapwrap img{display:block; width:100%; height:auto}
 .mapcard .mapwrap svg{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
@@ -450,8 +453,27 @@ DAYS.forEach(d => d.stops.forEach(st => {
 const $ = (s, r=document) => r.querySelector(s);
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const enc = s => encodeURIComponent(s);
-const mapsSearch = q => 'https://www.google.com/maps/search/?api=1&query=' + enc(q);
-const mapsDir = (o, d) => 'https://www.google.com/maps/dir/?api=1&origin=' + enc(o) + '&destination=' + enc(d) + '&travelmode=transit';
+/* map app choice, saved on this phone: 'google' or 'apple' */
+let MAPAPP = 'google';
+try { MAPAPP = localStorage.getItem('to26-mapapp') === 'apple' ? 'apple' : 'google'; } catch(e) {}
+function setMapApp(v){ MAPAPP = v; try { localStorage.setItem('to26-mapapp', v); } catch(e) {} }
+/* exact pin for a search text, so Apple Maps lands on the right place */
+const QP = {};
+function qpin(q){
+  if (!Object.keys(QP).length){
+    Object.values(HOTELS).forEach(h => { if (h.q && h.p) QP[h.q] = h.p; });
+    DAYS.forEach(d => d.stops.forEach(st => { if (st.q && st.p) QP[st.q] = st.p; (st.split||[]).forEach(sp => { if (sp.q && sp.p) QP[sp.q] = sp.p; }); }));
+  }
+  return QP[q] || null;
+}
+const mapsSearch = q => {
+  if (MAPAPP === 'apple'){ const p = qpin(q); return 'https://maps.apple.com/?q=' + enc(q) + (p ? '&ll=' + p[0] + ',' + p[1] : ''); }
+  return 'https://www.google.com/maps/search/?api=1&query=' + enc(q);
+};
+const mapsDir = (o, d) => {
+  if (MAPAPP === 'apple'){ const po = qpin(o), pd = qpin(d); return 'https://maps.apple.com/?saddr=' + (po ? po[0]+','+po[1] : enc(o)) + '&daddr=' + (pd ? pd[0]+','+pd[1] : enc(d)) + '&dirflg=r'; }
+  return 'https://www.google.com/maps/dir/?api=1&origin=' + enc(o) + '&destination=' + enc(d) + '&travelmode=transit';
+};
 const cityColor = c => c==='tokyo' ? 'var(--tokyo)' : c==='osaka' ? 'var(--osaka)' : 'var(--travel)';
 const ICONS = {
   walk:'<svg viewBox="0 0 24 24"><path d="M13.5 5.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM9.8 8.9 7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>',
@@ -613,7 +635,7 @@ function dayMap(day){
   s += '<g stroke="#16213A" stroke-width="3"><line x1="'+bx+'" y1="'+by+'" x2="'+(bx+barPx).toFixed(1)+'" y2="'+by+'"/><line x1="'+bx+'" y1="'+(by-7)+'" x2="'+bx+'" y2="'+(by+7)+'"/><line x1="'+(bx+barPx).toFixed(1)+'" y1="'+(by-7)+'" x2="'+(bx+barPx).toFixed(1)+'" y2="'+(by+7)+'"/></g>';
   s += '<text x="'+(bx+barPx+10).toFixed(1)+'" y="'+(by+6)+'" font-family="var(--mono)" font-weight="600" font-size="17" fill="#16213A" paint-order="stroke" stroke="#fff" stroke-width="5">'+fmtKm(bar)+'</text>';
   s += '</svg>';
-  const live = 'https://www.google.com/maps/@'+cLat+','+cLng+','+m.z+'z';
+  const live = MAPAPP === 'apple' ? 'https://maps.apple.com/?ll='+cLat+','+cLng+'&z='+m.z : 'https://www.google.com/maps/@'+cLat+','+cLng+','+m.z+'z';
   return '<a class="mapwrap" href="'+live+'" target="_blank" rel="noopener" aria-label="Open this area in Google Maps"><img src="'+m.img+'" width="'+W+'" height="'+H+'" alt="Google Maps capture of '+esc(day.where)+'" loading="lazy" decoding="async">'+s+'<span class="tip">Tap to open</span></a>';
 }
 
@@ -707,7 +729,7 @@ function renderDay(day){
   if (map){
     const legend = day.stops.filter(st=>st.num).map(st => '<span><b>'+st.num+'</b>'+esc(st.short||st.t)+'</span>').join('');
     const route = dayRouteUrl(day);
-    h += '<div class="mapcard"><div class="maphead"><span class="eyebrow">Map of the day</span><span class="eyebrow">'+(day.city==='osaka'?'Osaka':'Tokyo')+'</span></div>'+map+
+    h += '<div class="mapcard"><div class="maphead"><span class="eyebrow">Map of the day · '+(day.city==='osaka'?'Osaka':'Tokyo')+'</span><span class="seg" role="group" aria-label="Open links in"><button class="mapapp" data-app="google" aria-pressed="'+(MAPAPP==='google')+'">Google</button><button class="mapapp" data-app="apple" aria-pressed="'+(MAPAPP==='apple')+'">Apple</button></span></div>'+map+
       '<div class="legend">'+(hotel && day.startAtHotel ? '<span class="h"><b style="color:var(--ink)">H</b>Hotel</span>' : '')+legend+'</div>'+
       (route ? '<div class="mapfoot"><a class="btn primary" href="'+route+'" target="_blank" rel="noopener">'+SV.route+'Whole day in Google Maps</a></div>' : '')+'</div>';
   }
@@ -803,6 +825,7 @@ function fromHash(){
 }
 window.addEventListener('hashchange', fromHash);
 document.addEventListener('click', e => {
+  const ma = e.target.closest('.mapapp'); if (ma){ setMapApp(ma.dataset.app); const y = window.scrollY; render(); window.scrollTo(0, y); return; }
   const chip = e.target.closest('.daychip'); if (chip){ go('days', chip.dataset.day); return; }
   const tab = e.target.closest('.tab'); if (tab){ go(tab.dataset.tab, null); return; }
   const st = e.target.closest('.station'); if (st){ const id=st.dataset.id; if (DONE[id]) delete DONE[id]; else DONE[id]=1; saveDone(); st.closest('.stop').classList.toggle('done', !!DONE[id]); return; }
