@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Japan 2026">
+<meta name="robots" content="noindex,nofollow">
+<title>Tokyo Osaka 2026</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one phone-first column. Each day is a transit line: a sticky day strip on top,
+   a drawn route map, then the stops as numbered stations down a colored line. */
+:root{
+  --bg:#F1F2EE; --surface:#FFFFFF; --surface-2:#E9EBE6;
+  --ink:#16213A; --ink-2:#5A6378; --ink-3:#8B93A6; --line:#D8DCE2;
+  --tokyo:#F08A00; --osaka:#E0202A; --travel:#6B7489;
+  --res-bg:#FFF0B8; --res-fg:#6E4D00; --res-dot:#F2B600;
+  --must-bg:#FFD3E8; --must-fg:#8F1A5B; --must-dot:#E8359A;
+  --fly-bg:#E4E7EC; --fly-fg:#3B4457;
+  --map-bg:#F7F8F5; --map-grid:#DDE2E8; --map-water:#DCE9F2;
+  --focus:#2F6FED;
+  --display:'Zen Kaku Gothic New','Hiragino Sans','Noto Sans JP',system-ui,sans-serif;
+  --body:'IBM Plex Sans','Helvetica Neue',Arial,system-ui,sans-serif;
+  --mono:'IBM Plex Mono','SF Mono',Menlo,monospace;
+  --accent:var(--tokyo);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1320; --surface:#161C2B; --surface-2:#1F2637;
+    --ink:#EEF1F7; --ink-2:#A8B0C3; --ink-3:#7C8599; --line:#2B3448;
+    --tokyo:#FFA632; --osaka:#FF525C; --travel:#9AA3B8;
+    --res-bg:#4A3B08; --res-fg:#FFDE7A; --res-dot:#FFC933;
+    --must-bg:#4A1A37; --must-fg:#FFA3D6; --must-dot:#FF5DB6;
+    --fly-bg:#2A3345; --fly-fg:#CFD6E4;
+    --map-bg:#121827; --map-grid:#243049; --map-water:#1B2A3D;
+    --focus:#7FA6FF;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1320; --surface:#161C2B; --surface-2:#1F2637;
+  --ink:#EEF1F7; --ink-2:#A8B0C3; --ink-3:#7C8599; --line:#2B3448;
+  --tokyo:#FFA632; --osaka:#FF525C; --travel:#9AA3B8;
+  --res-bg:#4A3B08; --res-fg:#FFDE7A; --res-dot:#FFC933;
+  --must-bg:#4A1A37; --must-fg:#FFA3D6; --must-dot:#FF5DB6;
+  --fly-bg:#2A3345; --fly-fg:#CFD6E4;
+  --map-bg:#121827; --map-grid:#243049; --map-water:#1B2A3D;
+  --focus:#7FA6FF;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--body); font-size:15px; line-height:1.45;
+  -webkit-text-size-adjust:100%;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0 calc(84px + env(safe-area-inset-bottom, 0px));
+}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top, 0px); z-index:10; background:var(--bg)}
+a{color:inherit}
+button{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+.wrap{max-width:680px; margin:0 auto}
+
+/* Top: brand + sticky day strip */
+.top{position:sticky; top:env(safe-area-inset-top, 0px); z-index:9; background:var(--bg); padding-top:10px}
+.brand{display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:2px 0 8px}
+.brand h1{font-family:var(--display); font-weight:900; font-size:22px; letter-spacing:-.01em; margin:0; line-height:1.1}
+.brand h1 span{color:var(--ink-3); font-weight:700}
+.brand .sub{font-family:var(--mono); font-size:11.5px; color:var(--ink-2); white-space:nowrap}
+.daystrip{display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding:2px 0 10px; margin:0 -4px; padding-left:4px; padding-right:4px; scroll-snap-type:x proximity; border-bottom:1px solid var(--line)}
+.daystrip::-webkit-scrollbar{display:none}
+.daychip{flex:0 0 auto; scroll-snap-align:start; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:50px; padding:7px 6px 6px; border-radius:12px; border:1px solid transparent; background:transparent; cursor:pointer; color:var(--ink-2); position:relative}
+.daychip .dow{font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase}
+.daychip .num{font-family:var(--display); font-weight:700; font-size:18px; line-height:1; color:var(--ink)}
+.daychip .dot{width:6px; height:6px; border-radius:50%; background:var(--c); margin-top:3px}
+.daychip[aria-current="true"]{background:var(--surface); border-color:var(--line); box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.daychip[aria-current="true"] .num{color:var(--c)}
+.daychip.today::after{content:"today"; position:absolute; top:-7px; left:50%; transform:translateX(-50%); font-family:var(--mono); font-size:9px; letter-spacing:.06em; text-transform:uppercase; background:var(--ink); color:var(--bg); padding:1px 5px; border-radius:6px}
+
+/* Day header */
+.dayhead{padding:16px 0 12px; display:grid; grid-template-columns:minmax(0,1fr); gap:6px; min-width:0}
+.dayhead > *{min-width:0; max-width:100%}
+.eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-2); display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.eyebrow .pill{display:inline-flex; align-items:center; gap:6px; padding:2px 8px; border-radius:99px; background:var(--accent); color:#fff; font-weight:600}
+.dayhead h2{font-family:var(--display); font-weight:900; font-size:30px; line-height:1.05; margin:0; letter-spacing:-.015em; text-wrap:balance}
+.dayhead .where{font-family:var(--display); font-weight:700; font-size:16px; color:var(--ink-2)}
+.hotelbar{display:flex; gap:10px; align-items:center; padding:10px 12px; border-radius:12px; background:var(--surface); border:1px solid var(--line); margin-top:4px}
+.hotelbar .ico{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--ink); color:var(--bg); display:grid; place-items:center; font-family:var(--display); font-weight:900; font-size:14px}
+.hotelbar .txt{min-width:0; flex:1}
+.hotelbar .txt b{display:block; font-family:var(--display); font-weight:700; font-size:14px; line-height:1.2}
+.hotelbar .txt span{display:block; font-size:12.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+
+/* Map card */
+.mapcard{background:var(--surface); border:1px solid var(--line); border-radius:16px; overflow:hidden; margin:10px 0 6px}
+.mapcard .maphead{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:10px 12px 0}
+.mapcard .maphead .eyebrow{color:var(--ink-2)}
+.mapcard .mapwrap{position:relative; display:block; background:var(--surface-2)}
+.mapcard .mapwrap img{display:block; width:100%; height:auto}
+.mapcard .mapwrap svg{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
+.mapcard .mapwrap .tip{position:absolute; left:8px; top:8px; font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; background:rgba(255,255,255,.88); color:#16213A; padding:3px 7px; border-radius:6px}
+.mapcard .legend{display:flex; flex-wrap:wrap; gap:4px 10px; padding:8px 12px 10px; font-size:12px; color:var(--ink-2); border-top:1px solid var(--line)}
+.mapcard .legend b{font-family:var(--mono); font-weight:600; color:var(--accent); margin-right:3px}
+.mapcard .legend .h{color:var(--ink)}
+.mapfoot{display:flex; gap:8px; padding:0 12px 12px; flex-wrap:wrap}
+.flightcard{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; margin:10px 0 6px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px}
+.flightcard .ap{font-family:var(--display); font-weight:900; font-size:30px; line-height:1; letter-spacing:-.02em}
+.flightcard .ap small{display:block; font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-2); font-weight:500; margin-top:6px}
+.flightcard .ap .t{display:block; font-family:var(--mono); font-size:13px; color:var(--ink); margin-top:4px}
+.flightcard .mid{display:grid; justify-items:center; gap:4px; color:var(--ink-3); font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; text-align:center}
+.flightcard .mid .plane{width:64px; height:1px; background:var(--line); position:relative}
+.flightcard .mid .plane::after{content:"✈"; position:absolute; right:-6px; top:-11px; font-size:16px; color:var(--ink)}
+.flightcard .right{text-align:right}
+
+/* Timeline: the line */
+.line{position:relative; padding:8px 0 24px 0; margin-top:8px}
+.line::before{content:""; position:absolute; left:17px; top:0; bottom:0; width:4px; background:var(--accent); border-radius:2px; opacity:.9}
+.stop{position:relative; padding-left:50px; margin:0 0 12px}
+.stop .station{position:absolute; left:3px; top:12px; width:32px; height:32px; border-radius:50%; background:var(--accent); color:#fff; border:3px solid var(--bg); display:grid; place-items:center; cursor:pointer; padding:0; box-shadow:0 0 0 2px var(--accent)}
+.stop .station svg{width:17px; height:17px; fill:currentColor; display:block}
+.stop .station .n{position:absolute; right:-9px; bottom:-7px; min-width:16px; height:16px; padding:0 4px; border-radius:8px; background:var(--surface); color:var(--accent); border:1.5px solid var(--accent); font-family:var(--mono); font-weight:600; font-size:9.5px; line-height:13px; display:grid; place-items:center}
+.stop .station.hollow{background:var(--surface); color:var(--accent); box-shadow:0 0 0 2px var(--accent)}
+.stop .station.hotel{border-radius:9px; background:var(--ink); box-shadow:0 0 0 2px var(--ink); color:var(--bg)}
+.stop .station.hotel .n{color:var(--ink); border-color:var(--ink)}
+.stop.done .station{background:var(--ink-3); box-shadow:0 0 0 2px var(--ink-3); color:#fff}
+.stop.done .station::after{content:"✓"; font-size:14px; font-weight:700}
+.stop.done .station svg, .stop.done .station .n{display:none}
+.stop.done .card .t{text-decoration:line-through; color:var(--ink-3)}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:10px 12px 10px; overflow:hidden}
+.card .photo{display:block; width:calc(100% + 24px); height:auto; margin:-10px -12px 10px; aspect-ratio:3/2; object-fit:cover; background:var(--surface-2); border-bottom:1px solid var(--line)}
+.card .who .photo{width:calc(100% + 20px); margin:-8px -10px 8px; border-radius:10px 10px 0 0; border-bottom:0}
+.card .who > div{overflow:hidden}
+.card .credit{font-family:var(--mono); font-size:10px; color:var(--ink-3); margin:-5px 0 8px; letter-spacing:.02em}
+.card .credit a{color:var(--ink-3)}
+.card .slot{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); display:flex; justify-content:space-between; gap:8px; align-items:center}
+.card .slot .time{font-size:12px; letter-spacing:0; color:var(--ink); font-weight:600; text-transform:none; background:var(--surface-2); padding:1px 7px; border-radius:6px; font-variant-numeric:tabular-nums}
+.card .t{font-family:var(--display); font-weight:700; font-size:17px; line-height:1.25; margin:4px 0 2px; text-wrap:balance}
+.card .d{font-size:13.5px; color:var(--ink-2); line-height:1.4; white-space:pre-line}
+.card .who{display:grid; gap:8px; margin-top:6px}
+.card .who > div{padding:8px 10px; border-radius:10px; background:var(--surface-2)}
+.card .who .lbl{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-2); margin-bottom:2px}
+.card .who .t{font-size:15.5px; margin:0 0 2px}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
+.chip{display:inline-flex; align-items:center; gap:5px; font-size:12px; padding:3px 8px; border-radius:99px; background:var(--surface-2); color:var(--ink-2); font-weight:500; white-space:nowrap}
+.chip.res{background:var(--res-bg); color:var(--res-fg)}
+.chip.must{background:var(--must-bg); color:var(--must-fg)}
+.chip.fly{background:var(--fly-bg); color:var(--fly-fg)}
+.chip .dot{width:7px; height:7px; border-radius:50%; background:currentColor}
+.chip.res .dot{background:var(--res-dot)}
+.chip.must .dot{background:var(--must-dot)}
+.chip svg{width:13px; height:13px; fill:currentColor}
+.acts{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
+.btn{display:inline-flex; align-items:center; gap:6px; padding:7px 11px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink); text-decoration:none; font-size:13px; font-weight:600; cursor:pointer; line-height:1}
+.btn svg{width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+.btn.primary{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.btn.media{border-color:transparent; background:var(--surface-2)}
+.btn.ghost{border-style:dashed; color:var(--ink-2)}
+.note{font-size:12.5px; color:var(--ink-3); margin:4px 0 0}
+.key{display:flex; flex-wrap:wrap; gap:4px 12px; margin:10px 0 0; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.key span{display:inline-flex; align-items:center; gap:5px}
+.key svg{width:13px; height:13px; fill:var(--ink-2)}
+
+/* Section pages */
+.page{padding:16px 0 24px}
+.page h2{font-family:var(--display); font-weight:900; font-size:26px; margin:0 0 4px; letter-spacing:-.015em}
+.page .lead{color:var(--ink-2); margin:0 0 14px; font-size:14px}
+.group{margin:18px 0 0}
+.group h3{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-2); margin:0 0 8px; display:flex; align-items:center; gap:8px}
+.group h3 .sw{width:10px; height:10px; border-radius:3px; background:var(--c, var(--ink-3))}
+.rows{display:grid; gap:8px}
+.row{display:grid; grid-template-columns:62px 1fr; gap:10px; align-items:start; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:10px 12px; text-decoration:none}
+.row .tm{font-family:var(--mono); font-weight:600; font-size:13px; font-variant-numeric:tabular-nums; color:var(--ink); padding-top:2px}
+.row .tm small{display:block; font-weight:500; font-size:10.5px; color:var(--ink-3); letter-spacing:.06em; text-transform:uppercase}
+.row .bd{min-width:0}
+.row .bd b{display:block; font-family:var(--display); font-weight:700; font-size:15px; line-height:1.25}
+.row .bd span{display:block; font-size:13px; color:var(--ink-2)}
+.row .bd .chips{margin-top:6px}
+.stay{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:14px; display:grid; gap:8px}
+.stay .nights{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-2)}
+.stay b{font-family:var(--display); font-weight:900; font-size:19px; line-height:1.2; letter-spacing:-.01em}
+.stay .addr{font-size:13.5px; color:var(--ink-2); user-select:all; -webkit-user-select:all}
+.stays{display:grid; gap:10px}
+.kv{display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:13.5px}
+.kv dt{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); padding-top:2px}
+.kv dd{margin:0}
+.srcnote{font-size:12px; color:var(--ink-3); margin-top:24px; line-height:1.5}
+.srcnote a{color:var(--ink-2)}
+
+/* Bottom tab bar */
+.tabbar{position:fixed; left:0; right:0; bottom:0; z-index:9; background:var(--surface); border-top:1px solid var(--line);
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-bottom:env(safe-area-inset-bottom, 0px)}
+.tabbar .in{max-width:680px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr)}
+.tab{display:grid; justify-items:center; gap:3px; padding:9px 4px 8px; background:none; border:0; color:var(--ink-3); cursor:pointer; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase}
+.tab svg{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.tab[aria-current="true"]{color:var(--ink)}
+.tab[aria-current="true"] svg{stroke-width:2.2}
+
+@media (min-width:560px){
+  .brand h1{font-size:26px}
+  .dayhead h2{font-size:36px}
+  .card .who{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion: no-preference){
+  .daychip, .btn, .station{transition:background-color .15s, border-color .15s, box-shadow .15s}
+}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Tokyo <span>·</span> Osaka <span>2026</span></h1>
+      <div class="sub">Nov 21 – 29 · 9 days</div>
+    </div>
+    <nav class="daystrip" id="daystrip" aria-label="Days"></nav>
+  </header>
+  <main id="view"></main>
+</div>
+<nav class="tabbar" aria-label="Sections"><div class="in" id="tabs"></div></nav>
+
+<script>
+/* ---------- Data: straight from the planner sheet, B1:J15 ---------- */
+const IG = u => ({t:'Reel', u, k:'ig'});
+const YT = u => ({t:'Video', u, k:'yt'});
+
+const HOTELS = {
+  ueno:  {name:'MIMARU Tokyo Ueno North', addr:'7 Chome-14-4 Ueno, Taito City, Tokyo 110-0005', ph:'mimaru', q:'MIMARU Tokyo Ueno North', nights:'Nov 22 – 24 · 2 nights', city:'tokyo'},
+  namba: {name:'Mercure Tokyu Stay Osaka Namba', addr:'2 Chome-2-4 Nishishinsaibashi, Chuo Ward, Osaka 542-0086', ph:'mercure', q:'Mercure Tokyu Stay Osaka Namba', nights:'Nov 24 – 28 · 4 nights', city:'osaka'},
+  ginza: {name:'Mitsui Garden Hotel Ginza Premier', addr:'8 Chome-13-1 Ginza, Chuo City, Tokyo 104-0061', ph:'mitsui-ginza', q:'Mitsui Garden Hotel Ginza Premier', nights:'Nov 28 – 29 · 1 night', city:'tokyo'}
+};
+
+/* stop fields: s slot · t title · d detail · tr transit · time · k kind (meal/act/fly/transit/hotel/bag)
+   f flag from the sheet color: res = yellow (reservation or timed), must = pink (mandatory), fly = gray
+   l links · p pin [lat,lng] (null = no pin on the drawn map) · q Google Maps search text · split = parents / kids */
+const DAYS = [
+ {id:'day-0', n:0, date:'2026-11-21', dow:'Sat', mon:'Nov', day:21, city:'travel', title:'Seattle → Tokyo', where:'Seattle', hotel:null, flight:{from:'SEA',to:'NRT',dep:'11:50am',arr:'3:05pm +1',al:'Japan Airlines'},
+  stops:[
+   {s:'Breakfast – Morning', t:'Leave for Airport', d:'Seattle-Tacoma International Airport', time:'7:30am', k:'transit', f:'res', p:null, q:'Seattle-Tacoma International Airport'},
+   {s:'Lunch – Evening', t:'Depart to Tokyo', d:'Japan Airlines', time:'11:50am', k:'fly', f:'fly', p:null}
+  ]},
+ {id:'day-1', n:1, date:'2026-11-22', dow:'Sun', mon:'Nov', day:22, city:'tokyo', title:'Land in Tokyo', where:'Seattle / Tokyo', hotel:'ueno', startAtHotel:false,
+  stops:[
+   {s:'Breakfast – Snack', t:'Flight', d:'Japan Airlines, Seattle → Tokyo', k:'fly', f:'fly', p:null},
+   {s:'Afternoon', t:'Arrive', d:'Narita Airport', time:'3:05pm', k:'fly', f:'fly', ph:'narita', q:'Narita International Airport', short:'Narita'},
+   {s:'Afternoon', t:'Taxi Pickup', d:'Booked on Klook', k:'transit', f:'res', p:null},
+   {s:'Dinner', t:'Ameyoko Market', tr:'15 min walk', k:'meal', ph:'ameyoko', q:'Ameyoko Market Ueno', short:'Ameyoko'},
+   {s:'Evening', t:'Ship luggage to Osaka', k:'bag', f:'must', p:null}
+  ]},
+ {id:'day-2', n:2, date:'2026-11-23', dow:'Mon', mon:'Nov', day:23, city:'tokyo', title:'Asakusa, Shibuya, Harajuku', where:'Tokyo', hotel:'ueno', startAtHotel:true,
+  stops:[
+   {s:'Breakfast', t:'NAKAU', d:'Gyudon chain, nearest branch', tr:'15 min subway', k:'meal', p:null, ph:'nakau', q:'Nakau なか卯 Ueno'},
+   {s:'Morning', t:'Asakusa street food', d:'Melon pan, crepes, sweet potato', tr:'20 min subway', k:'meal', ph:'nakamise', q:'Nakamise-dori Asakusa', short:'Asakusa'},
+   {s:'Morning', t:'Uniqlo sale', d:'Opens 10am', k:'shop', ph:'uniqlo-asakusa', q:'UNIQLO Asakusa', short:'Uniqlo'},
+   {s:'Lunch', t:'Katsudon-ya Zuicho', d:'Opens 11:30am. Get there at 11.', tr:'30 min taxi, leave 10:30am', time:'11:00am', k:'meal', l:[IG('https://www.instagram.com/reels/DEvxkChyalM/')], ph:'zuicho', q:'Katsudon-ya Zuicho Shibuya', short:'Zuicho'},
+   {s:'Afternoon', t:'Nintendo Tokyo / Pokemon Shibuya', tr:'10 min walk', k:'shop', ph:'nintendo-shibuya', q:'Nintendo TOKYO Shibuya PARCO', short:'Nintendo / Pokémon'},
+   {s:'Afternoon', t:'3 Coins Harajuku / Mooosh Squishy', tr:'15 min walk', k:'shop', ph:'3coins-harajuku', q:'3COINS Harajuku Takeshita Street', short:'3 Coins / Mooosh'},
+   {s:'Snack', t:'Nike Running Analysis', d:'Harajuku. Need reservations.', tr:'5 min taxi', time:'3:00pm', k:'shop', f:'res', ph:'nike', q:'Nike Harajuku', short:'Nike Harajuku'},
+   {s:'Afternoon', t:'Sunshine City', tr:'20 min taxi', k:'shop', ph:'sunshine', q:'Sunshine City Ikebukuro', short:'Sunshine City'},
+   {s:'Afternoon', t:'7-11 snacks', k:'meal', p:null, ph:'seven', q:'7-Eleven Higashi-Ikebukuro'},
+   {s:'Dinner', t:'TAMAGO-KEN Ikebukuro Branch', d:'Omurice', tr:'5 min walk', k:'meal', l:[IG('https://www.instagram.com/p/DQB7tOOkZO1/?img_index=2&igsh=eDQyejdwZ2hwcjl5')], ph:'tamagoken', q:'Kanda Tamagoken Ikebukuro WACCA', short:'Tamago-ken'},
+   {s:'Evening', t:'Hotel or Tokyo Skytree', tr:'30 min taxi', k:'act', ph:'skytree', q:'Tokyo Skytree', short:'Skytree'}
+  ]},
+ {id:'day-3', n:3, date:'2026-11-24', dow:'Tue', mon:'Nov', day:24, city:'osaka', title:'Train to Osaka, Namba', where:'Tokyo / Osaka', hotel:'namba', startAtHotel:false,
+  stops:[
+   {s:'Breakfast', t:'NAKAU', d:'Gyudon chain, nearest branch', tr:'15 min subway', k:'meal', p:null, ph:'nakau', q:'Nakau なか卯 Ueno'},
+   {s:'Morning', t:'Train to Osaka', d:'10am Tokyo Station → 12:30pm arrival\nBooked on Klook', tr:'15 min car, leave at 9:15am', time:'10:00am', k:'transit', f:'res', ph:'tokyo-station', q:'Tokyo Station', short:'Tokyo Station'},
+   {s:'Morning', t:'Hotel', d:'Check in, drop bags', tr:'25 min subway', k:'hotel', ph:'mercure', q:'Mercure Tokyu Stay Osaka Namba', short:'Hotel'},
+   {s:'Lunch', t:'Ichiran Beef Dotonbori', tr:'3 min walk', k:'meal', ph:'ichiran', q:'Ichiran Dotonbori', short:'Ichiran'},
+   {s:'Afternoon', t:'Pokémon Center DX', d:'Namba', tr:'10 min walk', k:'shop', ph:'pokemon-osaka-dx', q:'Pokémon Center Osaka DX Daimaru Shinsaibashi', short:'Pokémon DX'},
+   {s:'Afternoon', t:'Parco Mall', tr:'5 min walk', k:'shop', ph:'parco', q:'Shinsaibashi PARCO', short:'Parco'},
+   {s:'Snack', t:'Kajitsu no hana Shinsaibashi', d:'Fruit daifuku\nAlso: Dekasan (egg sandwich)', tr:'6 min walk', k:'meal', l:[{t:'Dekasan reel', u:'https://www.instagram.com/reels/DKrlbeQMkM2/', k:'ig'}], ph:'kajitsu', q:'Kajitsu no hana Shinsaibashi', short:'Kajitsu no hana'},
+   {s:'Afternoon', t:'Don Quijote Ferris Wheel', tr:'5 min walk', k:'act', l:[IG('https://www.instagram.com/reels/DdbYvlhgdmR/')], ph:'donki', q:'Don Quijote Dotonbori Ferris Wheel', short:'Don Quijote wheel'},
+   {s:'Afternoon', t:'3 Coins', tr:'5 min walk', k:'shop', ph:'3coins-shinsaibashi', q:'3COINS Shinsaibashi', short:'3 Coins'},
+   {s:'Dinner', t:'Matsusakagyu Yakiniku M Hanare Branch', d:'Reservation via Google', tr:'5 min walk', time:'5:00pm', k:'meal', f:'res', ph:'yakiniku-m', q:'Matsusakagyu Yakiniku M Hozenji Hanare', short:'Yakiniku M'},
+   {s:'Evening', t:'Umeda Sky + Nintendo Osaka', d:'Nintendo closes at 8pm', tr:'20 min taxi', k:'act', l:[IG('https://www.instagram.com/reels/DdkUAYzTeFr/')], ph:'umeda-sky', q:'Umeda Sky Building', short:'Umeda Sky'}
+  ]},
+ {id:'day-4', n:4, date:'2026-11-25', dow:'Wed', mon:'Nov', day:25, city:'osaka', title:'Namba and north', where:'Osaka (North / Namba)', hotel:'namba', startAtHotel:true,
+  stops:[
+   {s:'Breakfast', t:'Nakau', d:'Chuo Ward', tr:'10 min walk', k:'meal', p:null, ph:'nakau', q:'Nakau なか卯 Shinsaibashi'},
+   {s:'Morning', t:'Round1 Stadium Spo-Cha', tr:'10 min walk', k:'act', ph:'round1', q:'Round1 Stadium Sennichimae', short:'Round1'},
+   {s:'Lunch', k:'meal', split:[
+      {who:'Parents', t:'Wagyu Hokusai', tr:'3 min walk', l:[IG('https://www.instagram.com/reels/DdGyMxPuD4B/')], ph:'hokusai', q:'Wagyu Hokusai Osaka Namba'},
+      {who:'Kids', t:'Ichiran Beef Dotonbori', ph:'ichiran', q:'Ichiran Dotonbori'}
+    ], short:'Lunch (split)'},
+   {s:'Afternoon', t:'goyemon', d:'Sandals', tr:'15 min walk', k:'shop', l:[IG('https://www.instagram.com/reel/DfR7a4lPKeT/?rpxt=cDlpa2RxOWEzbWs=')], ph:'goyemon', q:'goyemon OSAKA Minamisenba', short:'goyemon'},
+   {s:'Afternoon', t:'Miracle World', d:'Reservation via Klook', tr:'10 min subway', time:'3:00pm', k:'act', f:'res', l:[YT('https://www.youtube.com/shorts/SfJQa3LjCY0')], ph:'miracle', q:'MIRACLE WORLD OSAKA Namba Oriental Hotel', short:'Miracle World'},
+   {s:'Snack', t:'Candy Apple', tr:'5 min walk', k:'meal', ph:'candy', q:'代官山Candy apple 大阪店 千日前', short:'Candy Apple'},
+   {s:'Afternoon', t:'Hotel', d:'Rest', k:'hotel', ph:'mercure', q:'Mercure Tokyu Stay Osaka Namba', short:'Hotel'},
+   {s:'Dinner', t:'Ramen Ichiza Namba', d:'Eat at 5pm\n🍜 Bettei Takei (fish-based tsukemen)\n🍜 Kaneda (creamy chicken paitan)\n🍜 Gyukkoshi (wagyu paitan ramen)', tr:'10 min walk', time:'5:00pm', k:'meal', l:[IG('https://www.instagram.com/reels/Dbpm7NczPga/')], ph:'ramen-ichiza', q:'Namba Ramen Ichiza EDION Namba', short:'Ramen Ichiza'},
+   {s:'Evening', t:'teamLab', d:'Reservation via Klook', tr:'30 min subway', time:'6:00pm', k:'act', f:'res', ph:'teamlab', q:'teamLab Botanical Garden Osaka', short:'teamLab'}
+  ]},
+ {id:'day-5', n:5, date:'2026-11-26', dow:'Thu', mon:'Nov', day:26, city:'osaka', title:'Kadoma outlets, Harukas sunset', where:'Osaka (South)', hotel:'namba', startAtHotel:true,
+  stops:[
+   {s:'Breakfast', t:'Nakau', d:'Chuo Ward', tr:'10 min walk', k:'meal', p:null, ph:'nakau', q:'Nakau なか卯 Shinsaibashi'},
+   {s:'Morning – Afternoon', t:'Mitsui Shopping Park LaLaport Kadoma', d:'MITSUI OUTLET PARK OSAKA KADOMA. Opens 10am.', tr:'30 min taxi', k:'shop', ph:'kadoma', q:'Mitsui Outlet Park Osaka Kadoma', short:'Kadoma outlets'},
+   {s:'Snack', t:'Idaten', d:"If we haven't eaten", tr:'35 min taxi', k:'meal', l:[IG('https://www.instagram.com/reels/Ddgu8Orp_Oa/')], ph:'idaten', q:'Wagyu Idaten Namba Osaka', short:'Idaten'},
+   {s:'Afternoon', t:'Hotel', d:'Rest', k:'hotel', ph:'mercure', q:'Mercure Tokyu Stay Osaka Namba', short:'Hotel'},
+   {s:'Afternoon', t:'Harukas 300', d:'4pm for the 4:45pm sunset', tr:'20 min subway', time:'4:00pm', k:'act', l:[YT('https://www.youtube.com/shorts/MVkMJIHBtDA')], ph:'harukas', q:'Harukas 300 Observatory Abeno', short:'Harukas 300'},
+   {s:'Dinner', k:'meal', f:'res', time:'6:30pm', split:[
+      {who:'Parents', t:'maruhana shinsaibashi', d:'All-you-can-eat crab. Reservation via Tabelog.', tr:'20 min subway', l:[IG('https://www.instagram.com/reels/DclWLaSglcf/')], ph:'maruhana', q:'Kaniya Maruhana Shinsaibashi'},
+      {who:'Kids', t:'Dearbros', d:'Omurice', tr:'20 min subway', l:[IG('https://www.instagram.com/reels/DbbtJRZmnTo/')], ph:'dearbros', q:'DEARBROS omurice Sennichimae Osaka'}
+    ], short:'Dinner (split)'},
+   {s:'Evening', t:'Ship luggage to Tokyo', k:'bag', f:'must', p:null}
+  ]},
+ {id:'day-6', n:6, date:'2026-11-27', dow:'Fri', mon:'Nov', day:27, city:'osaka', title:'Haircut, Amerikamura, Tsutenkaku', where:'Osaka', hotel:'namba', startAtHotel:true,
+  stops:[
+   {s:'Breakfast', t:'Nakau', d:'Chuo Ward', tr:'10 min walk', k:'meal', p:null, ph:'nakau', q:'Nakau なか卯 Shinsaibashi'},
+   {s:'Morning', t:'Assort Osaka Haircut', d:'10am reservation via Google', tr:'10 min walk', time:'10:00am', k:'act', book:true, ph:'assort', q:'ASSORT Osaka hair salon Kitahorie', short:'Assort haircut'},
+   {s:'Lunch', k:'meal', split:[
+      {who:'Parents', t:'Hitomukashi', d:'14-26 Nanbasennichimae, Chuo Ward, Osaka 542-0075', tr:'15 min subway', l:[IG('https://www.instagram.com/reels/DYaq8eQzUH3/')], ph:'hitomukashi', q:'Hitomukashi 14-26 Nanbasennichimae Osaka'},
+      {who:'Kids', t:'Ichiran Beef Dotonbori', ph:'ichiran', q:'Ichiran Dotonbori'}
+    ], short:'Lunch (split)'},
+   {s:'Afternoon', t:'Amerikamura', d:"Osaka's Harajuku", tr:'5 min walk', k:'shop', ph:'amerikamura', q:'Amerikamura Sankaku Park Osaka', short:'Amerikamura'},
+   {s:'Afternoon', t:'Tsutenkaku Tower Slide', tr:'20 min subway', k:'act', l:[IG('https://www.instagram.com/reels/DbPpNvFy4CW/')], ph:'tsutenkaku', q:'Tsutenkaku Tower Slider', short:'Tsutenkaku'},
+   {s:'Afternoon', t:'Hotel', d:'Rest', tr:'20 min subway', k:'hotel', ph:'mercure', q:'Mercure Tokyu Stay Osaka Namba', short:'Hotel'},
+   {s:'Afternoon', t:'Shinsaibashi Sunbowl', d:'Bowling', tr:'5 min walk', k:'act', ph:'sunbowl', q:'Shinsaibashi Sunbowl bowling', short:'Sunbowl'},
+   {s:'Dinner', k:'meal', f:'res', time:'5:00pm', split:[
+      {who:'Parents', t:'Kokuryu Osaka／Ebisubashi', d:'Omakase. Reservation via Google.', tr:'10 min walk', l:[IG('https://www.instagram.com/reel/DdOlcEtyeIc/?hl=en')], ph:'kokuryu', q:'Kokuryu Ebisubashi Namba omakase'},
+      {who:'Kids', t:'Kitan Hibiki', d:'Burger', tr:'10 min walk', ph:'kitan', q:'Kitan Hibiki Namba Osaka'}
+    ], short:'Dinner (split)'},
+   {s:'Evening', t:'7-11 snacks', k:'meal', p:null, ph:'seven', q:'7-Eleven Nishishinsaibashi'}
+  ]},
+ {id:'day-7', n:7, date:'2026-11-28', dow:'Sat', mon:'Nov', day:28, city:'tokyo', title:'Back to Tokyo, Ginza', where:'Osaka / Tokyo (Ginza)', hotel:'ginza', startAtHotel:false,
+  stops:[
+   {s:'Breakfast', t:'Nakau', d:'Chuo Ward', tr:'10 min walk', k:'meal', p:null, ph:'nakau', q:'Nakau なか卯 Shinsaibashi'},
+   {s:'Morning', t:'Train to Tokyo', d:'9am Shin-Osaka → 11:27am arrival\nBooked on Klook', tr:'25 min subway, leave at 8am', time:'9:00am', k:'transit', f:'res', ph:'shin-osaka', q:'Shin-Osaka Station', short:'Shin-Osaka'},
+   {s:'Morning', t:'Pokemon Legend Research', d:'Nihonbashi / Yaesu, near Tokyo Station\nPokémon Center DX', tr:'10 min walk', k:'shop', l:[IG('https://www.instagram.com/reels/DbqmECiOiIu/')], ph:'pokemon-tokyo-dx', q:'Pokémon Center TOKYO DX Nihonbashi Takashimaya', short:'Pokémon DX Nihonbashi'},
+   {s:'Lunch', t:'Hotel', d:'Check in', tr:'20 min subway', k:'hotel', ph:'mitsui-ginza', q:'Mitsui Garden Hotel Ginza Premier', short:'Hotel'},
+   {s:'Afternoon', t:'Ginza Kimuraya', d:'Raisin bread. 10am – 8pm daily.', tr:'10 min walk', k:'meal', ph:'kimuraya', q:'Ginza Kimuraya', short:'Kimuraya'},
+   {s:'Afternoon', t:'GU, PLST, Uniqlo, 3 Coins', d:'Ginza. Opens 11am.', tr:'5 min walk', k:'shop', ph:'uniqlo-ginza', q:'UNIQLO Ginza', short:'Uniqlo / GU Ginza'},
+   {s:'Snack', t:'Age 3 Ginza', d:'Fried cream sandwich. 11am – 7pm daily.', tr:'15 min walk', k:'meal', ph:'age3', q:'Age.3 Ginza', short:'Age 3'},
+   {s:'Afternoon', t:'Hotel', d:'Rest', k:'hotel', ph:'mitsui-ginza', q:'Mitsui Garden Hotel Ginza Premier', short:'Hotel'},
+   {s:'Afternoon', t:'Parents: massage', d:'4pm reservation, booked via Instagram', tr:'30 min taxi', time:'4:00pm', k:'act', f:'res', p:null}
+  ]},
+ {id:'day-8', n:8, date:'2026-11-29', dow:'Sun', mon:'Nov', day:29, city:'tokyo', title:'Ginza, then home', where:'Tokyo (Ginza)', hotel:'ginza', startAtHotel:true, flight:{from:'NRT',to:'SEA',dep:'6:10pm',arr:'9:50am',al:'Japan Airlines'},
+  stops:[
+   {s:'Breakfast', t:'NAKAU', d:'Gyudon chain, nearest branch', tr:'10 min walk', k:'meal', p:null, ph:'nakau', q:'Nakau なか卯 Ginza'},
+   {s:'Morning', t:'Imperial Palace Run', k:'act', ph:'imperial', q:'Imperial Palace running course Sakuradamon', short:'Imperial Palace'},
+   {s:'Morning', t:'Pokémon Pika Pika Festival 2026', d:'Mitsui Outlet Park Kisarazu\n3pm Pikachu', k:'act', l:[{t:'Event page', u:'https://www.enjoytokyo.jp/event/2040611/', k:'web'}], ph:'kisarazu', q:'Mitsui Outlet Park Kisarazu', short:'Pika Pika Festival'},
+   {s:'Lunch', t:'Refa hair shop', k:'shop', l:[IG('https://www.instagram.com/reel/DUGe9xAjScp/?rpxt=b3J3ZHB4NHpldXpt')], ph:'refa', q:'ReFa GINZA', short:'ReFa'},
+   {s:'Afternoon', t:'7-11 Photos', k:'shop', l:[IG('https://www.instagram.com/reels/DecGSPTTBdJ/')], p:null, ph:'seven', q:'7-Eleven Ginza'},
+   {s:'Afternoon', t:'Leave for Narita Airport', d:'Taxi pickup booked on Klook', time:'2:00pm', k:'transit', f:'res', ph:'narita', q:'Narita International Airport', short:'Narita'},
+   {s:'Evening', t:'Depart to Seattle', d:'Japan Airlines', time:'6:10pm', k:'fly', f:'fly', p:null},
+   {s:'Evening', t:'Arrive Seattle', d:'Same day, Sunday Nov 29', time:'9:50am', k:'fly', f:'fly', p:null}
+  ]}
+];
+
+/* Exact Google Maps coordinates for every place (from each place's Google listing) */
+const COORDS = {
+  'mimaru':[35.7165641,139.7803518],
+  'ameyoko':[35.7100682,139.7746009],
+  'nakamise':[35.7118413,139.7964542],
+  'uniqlo-asakusa':[35.7141245,139.7936921],
+  'zuicho':[35.662703,139.6953601],
+  'nintendo-shibuya':[35.6621161,139.6986385],
+  '3coins-harajuku':[35.6667913,139.7045798],
+  'nike':[35.6694946,139.7036369],
+  'sunshine':[35.7289709,139.7195415],
+  'tamagoken':[35.7315014,139.7146272],
+  'skytree':[35.7100627,139.8107004],
+  'tokyo-station':[35.6812,139.767],
+  'narita':[35.770178,140.3843215],
+  'mercure':[34.6704113,135.4997401],
+  'ichiran':[34.6684219,135.5032242],
+  'pokemon-osaka-dx':[34.6731719,135.5007545],
+  'parco':[34.6738473,135.5009574],
+  'kajitsu':[34.669874,135.5000604],
+  'donki':[34.6692407,135.5027407],
+  '3coins-shinsaibashi':[34.666,135.502],
+  'yakiniku-m':[34.6678017,135.5021825],
+  'umeda-sky':[34.7052872,135.4896527],
+  'round1':[34.667511,135.502862],
+  'hokusai':[34.6702927,135.5016523],
+  'goyemon':[34.6764301,135.5022676],
+  'miracle':[34.6657666,135.5037294],
+  'candy':[34.6678203,135.5032445],
+  'ramen-ichiza':[34.6652616,135.5018049],
+  'teamlab':[34.6123152,135.5243669],
+  'kadoma':[34.732043,135.584663],
+  'idaten':[34.6677597,135.5010546],
+  'harukas':[34.6460706,135.5134771],
+  'maruhana':[34.6718244,135.5025643],
+  'dearbros':[34.6679464,135.5032254],
+  'assort':[34.6731538,135.4961801],
+  'hitomukashi':[34.663993,135.503159],
+  'amerikamura':[34.6720688,135.4979236],
+  'tsutenkaku':[34.652455,135.5064993],
+  'sunbowl':[34.670903,135.4984006],
+  'kokuryu':[34.6673743,135.5014321],
+  'kitan':[34.6680359,135.502638],
+  'shin-osaka':[34.7334658,135.5002547],
+  'pokemon-tokyo-dx':[35.6802902,139.7742695],
+  'mitsui-ginza':[35.6671058,139.7632279],
+  'kimuraya':[35.6716679,139.7652695],
+  'uniqlo-ginza':[35.6737054,139.7651517],
+  'age3':[35.6727584,139.7712945],
+  'imperial':[35.6802297,139.7535852],
+  'kisarazu':[35.4355861,139.9346386],
+  'refa':[35.6686999,139.762832]
+};
+/* Places with a photo in img/<key>.jpg: Google Street View captures, or Wikimedia Commons photos (credited in CREDITS) */
+const PHOTOS = new Set(["3coins-harajuku", "age3", "amerikamura", "ameyoko", "assort", "dearbros", "donki", "goyemon", "harukas", "hitomukashi", "hokusai", "ichiran", "idaten", "imperial", "kajitsu", "kimuraya", "kisarazu", "kokuryu", "maruhana", "mercure", "mimaru", "mitsui-ginza", "nakamise", "nakau", "narita", "nike", "nintendo-shibuya", "parco", "pokemon-osaka-dx", "pokemon-tokyo-dx", "refa", "seven", "shin-osaka", "skytree", "sunshine", "tamagoken", "teamlab", "tokyo-station", "tsutenkaku", "umeda-sky", "uniqlo-asakusa", "uniqlo-ginza", "yakiniku-m", "zuicho"]);
+/* Wikimedia Commons photos: file page, photographer, license. The photo links to the file page. */
+const CREDITS = {
+  'sunshine':{t:"File:Sunshine City Tokyo (3).jpg", a:"Maplestrip", l:"CC BY 3.0"},
+  'skytree':{t:"File:Tokyo Skytree tower ground view.jpg", a:"Itsmejames", l:"CC BY 4.0"},
+  'tokyo-station':{t:"File:Tokyo Station (Marunouchi Building).jpg", a:"Alexandr3126", l:"CC BY-SA 4.0"},
+  'umeda-sky':{t:"File:2018 Umeda Sky Building.jpg", a:"Kakidai", l:"CC BY-SA 4.0"},
+  'harukas':{t:"File:View of Abeno Harukas and Shitennō-ji five-storied pagoda at dusk, January 2024 (clone version) - 9978.jpg", a:"Laitche", l:"CC BY-SA 4.0"},
+  'narita':{t:"File:JP-12 Narita Airport Terminal2 building.jpg", a:"Tatata", l:"CC BY-SA 4.0"},
+  'shin-osaka':{t:"File:Shin-Ōsaka Station.jpg", a:"EXECUTOR", l:"CC0"},
+  'imperial':{t:"File:Imperial Palace Tokyo Nijubashi Bridge.JPG", a:"Chris 73", l:"CC BY-SA 3.0"},
+  'kimuraya':{t:"File:Ginza Kimuraya Sohonten 2022-11-16.jpg", a:"Asanagi", l:"CC0"},
+  'uniqlo-ginza':{t:"File:Maronie Gate Ginza.jpg", a:"ITA-ATU", l:"CC BY-SA 4.0"},
+  'mitsui-ginza':{t:"File:RICOH Company Head Office Building.JPG", a:"Kakidai", l:"CC BY-SA 4.0"},
+  'kisarazu':{t:"File:Mitsui Outlet Park Kisarazu 01.JPG", a:"Abasaa", l:"Public domain"},
+  'pokemon-tokyo-dx':{t:"File:2019 Takashimaya Nihonbashi.jpg", a:"Kakidai", l:"CC BY-SA 4.0"},
+  'seven':{t:"File:7-Eleven Ikoma Motomachi 1-chome store.jpg", a:"Tokumeigakarinoaoshima", l:"CC BY-SA 4.0"},
+  'nakau':{t:"File:Nakau JR Noda store.jpg", a:"Tokumeigakarinoaoshima", l:"CC BY-SA 4.0"}
+};
+const commonsUrl = t => 'https://commons.wikimedia.org/wiki/' + encodeURIComponent(t.replace(/ /g,'_'));
+/* Map of the day: a Google Maps capture (792 x 624, 0.6683 image px per CSS px at the capture) with its center and zoom */
+const MAPS = {
+  'day-1':{img:'img/map-1.jpg', c:[35.7133161,139.7774764], z:17},
+  'day-2':{img:'img/map-2.jpg', c:[35.6968088,139.7530302], z:13},
+  'day-3':{img:'img/map-3.jpg', c:[34.6856436,135.4964384], z:14},
+  'day-4':{img:'img/map-4.jpg', c:[34.6708458,135.5017347], z:16},
+  'day-5':{img:'img/map-5.jpg', c:[34.6589475,135.5066086], z:15},
+  'day-6':{img:'img/map-6.jpg', c:[34.6628044,135.5013397], z:15},
+  'day-7':{img:'img/map-7.jpg', c:[35.673698,139.7687487], z:16},
+  'day-8':{img:'img/map-8.jpg', c:[35.6736677,139.7584066], z:16}
+};
+const MAP_W = 792, MAP_H = 624, MAP_CX = 416, MAP_CY = 312, MAP_S = (1456/1634)*0.75;
+/* give every stop, split entry and hotel its exact pin */
+Object.values(HOTELS).forEach(h => { if (h.ph && COORDS[h.ph]) h.p = COORDS[h.ph]; });
+DAYS.forEach(d => d.stops.forEach(st => {
+  if (st.ph && COORDS[st.ph]) st.p = COORDS[st.ph];
+  (st.split||[]).forEach(sp => { if (sp.ph && COORDS[sp.ph]) sp.p = COORDS[sp.ph]; });
+}));
+
+/* ---------- helpers ---------- */
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const enc = s => encodeURIComponent(s);
+const mapsSearch = q => 'https://www.google.com/maps/search/?api=1&query=' + enc(q);
+const mapsDir = (o, d) => 'https://www.google.com/maps/dir/?api=1&origin=' + enc(o) + '&destination=' + enc(d) + '&travelmode=transit';
+const cityColor = c => c==='tokyo' ? 'var(--tokyo)' : c==='osaka' ? 'var(--osaka)' : 'var(--travel)';
+const ICONS = {
+  walk:'<svg viewBox="0 0 24 24"><path d="M13.5 5.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM9.8 8.9 7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>',
+  subway:'<svg viewBox="0 0 24 24"><path d="M12 2C8 2 4 2.5 4 6v9.5A3.5 3.5 0 0 0 7.5 19L6 20.5V21h2.2l2-2h3.6l2 2H18v-.5L16.5 19a3.5 3.5 0 0 0 3.5-3.5V6c0-3.5-4-4-8-4zM7.5 17a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3.5-6H6V6h5v5zm5.5 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm1.5-6h-5V6h5v5z"/></svg>',
+  taxi:'<svg viewBox="0 0 24 24"><path d="M18.9 6c-.2-.6-.8-1-1.4-1H15V3H9v2H6.5c-.6 0-1.2.4-1.4 1L3 11v8a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h12v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-8l-2.1-5zM6.5 15a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm11 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM5 10l1.5-4.5h11L19 10H5z"/></svg>',
+  train:'<svg viewBox="0 0 24 24"><path d="M4 15.5A3.5 3.5 0 0 0 7.5 19L6 20.5V21h12v-.5L16.5 19a3.5 3.5 0 0 0 3.5-3.5V5c0-3.5-3.6-4-8-4S4 1.5 4 5v10.5zm8 1.5a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6-7H6V5h12v5z"/></svg>'
+};
+function transitIcon(tr){
+  const t = (tr||'').toLowerCase();
+  if (t.includes('subway')) return ICONS.subway;
+  if (t.includes('taxi') || t.includes('car')) return ICONS.taxi;
+  if (t.includes('train')) return ICONS.train;
+  if (t.includes('walk')) return ICONS.walk;
+  return '';
+}
+const SV = {
+  pin:'<svg viewBox="0 0 24 24"><path d="M12 22s7-7.1 7-12a7 7 0 1 0-14 0c0 4.9 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  dir:'<svg viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg>',
+  play:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M10 9l5 3-5 3z"/></svg>',
+  ig:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8"/></svg>',
+  link:'<svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+  route:'<svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h5"/></svg>'
+};
+
+/* category icons on the timeline: food, shopping, hotel, travel (plane / train / car / luggage), activity */
+const CAT = {
+  food:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2v7.3A2.7 2.7 0 0 0 7.7 11.8V22h2V11.8A2.7 2.7 0 0 0 11.4 9.3V2h-1.5v6H9V2H8v6H7V2H6zM15.5 2c-1.2 2.3-1.8 5-1.8 7.6 0 1.6.6 2.7 1.6 3.4V22h2V2h-1.8z"/></svg>',
+  shop:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V7a5 5 0 0 1 10 0v1h3.2l-1 14H4.8l-1-14H7zm2 0h6V7a3 3 0 0 0-6 0v1z"/></svg>',
+  hotel:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h2v7h7V8h7a4 4 0 0 1 4 4v7h-2v-3H4v3H2V6zm5 1.5a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6z"/></svg>',
+  plane:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>',
+  train:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15.5A3.5 3.5 0 0 0 7.5 19L6 20.5V21h12v-.5L16.5 19a3.5 3.5 0 0 0 3.5-3.5V5c0-3.5-3.6-4-8-4S4 1.5 4 5v10.5zm8 1.5a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6-7H6V5h12v5z"/></svg>',
+  car:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 6c-.2-.6-.8-1-1.4-1H6.5c-.6 0-1.2.4-1.4 1L3 11v8a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h12v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-8l-2.1-5zM6.5 15a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm11 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM5 10l1.5-4.5h11L19 10H5z"/></svg>',
+  bag:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5V3h6v2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2v1h-2v-1H8v1H6v-1a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3zm1.5 0h3V4.5h-3V5zM8 8v9h1.5V8H8zm6.5 0v9H16V8h-1.5z"/></svg>',
+  act:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.7l-6.1 3.4 1.4-6.8L2.2 9.6l6.9-.8z"/></svg>'
+};
+function catIcon(st){
+  const k = st.k, t = ((st.t||'')+' '+(st.d||'')+' '+(st.tr||'')).toLowerCase();
+  if (k==='meal') return CAT.food;
+  if (k==='shop') return CAT.shop;
+  if (k==='hotel') return CAT.hotel;
+  if (k==='fly') return CAT.plane;
+  if (k==='bag') return CAT.bag;
+  if (k==='transit'){
+    if (t.includes('train') || t.includes('station')) return CAT.train;
+    if (t.includes('airport') || t.includes('narita')) return CAT.car;
+    return CAT.car;
+  }
+  return CAT.act;
+}
+
+/* done state (per viewer) */
+let DONE = {};
+try { DONE = JSON.parse(localStorage.getItem('to26-done') || '{}') || {}; } catch(e) { DONE = {}; }
+function saveDone(){ try { localStorage.setItem('to26-done', JSON.stringify(DONE)); } catch(e) {} }
+
+function todayJP(){
+  try { return new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Tokyo', year:'numeric', month:'2-digit', day:'2-digit'}).format(new Date()); }
+  catch(e) { return new Date().toISOString().slice(0,10); }
+}
+function defaultDay(){
+  const t = todayJP();
+  const hit = DAYS.find(d => d.date === t);
+  if (hit) return hit.id;
+  if (t > DAYS[DAYS.length-1].date) return DAYS[DAYS.length-1].id;
+  return DAYS[0].id;
+}
+
+/* pin for a stop: its own, else the first split entry with one */
+function stopPin(st){ if (st.p) return st.p; if (st.split){ const s = st.split.find(x => x.p); if (s) return s.p; } return null; }
+function stopQ(st){ if (st.q) return st.q; if (st.split){ const s = st.split.find(x => x.q); if (s) return s.q; } return null; }
+
+/* ---------- the drawn day map ---------- */
+function haversine(a, b){
+  const R=6371000, toR=x=>x*Math.PI/180;
+  const dLat=toR(b[0]-a[0]), dLng=toR(b[1]-a[1]);
+  const s=Math.sin(dLat/2)**2 + Math.cos(toR(a[0]))*Math.cos(toR(b[0]))*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+function median(arr){ const s=[...arr].sort((a,b)=>a-b); const m=s.length>>1; return s.length%2 ? s[m] : (s[m-1]+s[m])/2; }
+function fmtKm(m){ const ft=m*3.28084, mi=m/1609.344; return mi >= 10 ? Math.round(mi)+' mi' : ft >= 2640 ? (Math.round(mi*10)/10)+' mi' : Math.round(ft/10)*10+' ft'; }
+
+function dayMap(day){
+  const m = MAPS[day.id];
+  const pts = [];
+  const hotel = day.hotel ? HOTELS[day.hotel] : null;
+  if (hotel && day.startAtHotel) pts.push({ll:hotel.p, label:'Hotel', hotel:true});
+  day.stops.forEach(st => { const p = stopPin(st); if (p) pts.push({ll:p, label:st.short || st.t, num:st.num}); });
+  if (!pts.length || !m) return '';
+
+  // Google Maps capture: image px per meter from the capture's zoom (Web Mercator) and latitude
+  const W=MAP_W, H=MAP_H, cLat=m.c[0], cLng=m.c[1], cosL=Math.cos(cLat*Math.PI/180);
+  const mpp = 156543.03*cosL/Math.pow(2,m.z)/MAP_S;
+  const proj = ll => [ MAP_CX + (ll[1]-cLng)*111320*cosL/mpp, MAP_CY - (ll[0]-cLat)*111320/mpp ];
+  const PADX=46, PADY=46;
+  pts.forEach(p => {
+    p.xy = proj(p.ll);
+    p.dist = Math.hypot(p.xy[0]-MAP_CX, p.xy[1]-MAP_CY)*mpp;
+    const [x,y]=p.xy;
+    p.far = x<PADX || x>W-PADX || y<PADY || y>H-PADY;
+    if (!p.far) return;
+    // off the capture: sit on the frame in the true direction, with the distance
+    const dx=x-MAP_CX, dy=y-MAP_CY; const len=Math.hypot(dx,dy)||1; const ux=dx/len, uy=dy/len;
+    let t=Infinity;
+    if (ux>0) t=Math.min(t,(W-PADX-MAP_CX)/ux); if (ux<0) t=Math.min(t,(PADX-MAP_CX)/ux);
+    if (uy>0) t=Math.min(t,(H-PADY-MAP_CY)/uy); if (uy<0) t=Math.min(t,(PADY-MAP_CY)/uy);
+    p.xy=[MAP_CX+ux*t, MAP_CY+uy*t];
+  });
+  // pins that would sit on top of each other get nudged apart, with a leader back to the true spot
+  pts.forEach(p => { p.pxy = [p.xy[0], p.xy[1]]; });
+  for (let it=0; it<60; it++){
+    let moved=false;
+    for (let i=0;i<pts.length;i++) for (let j=i+1;j<pts.length;j++){
+      const a=pts[i], b=pts[j];
+      const dx=b.pxy[0]-a.pxy[0], dy=b.pxy[1]-a.pxy[1], d=Math.hypot(dx,dy), MIN=52;
+      if (d >= MIN) continue;
+      const push=(MIN-d)/2+0.3; const ux = d<0.01 ? 1 : dx/d, uy = d<0.01 ? 0 : dy/d;
+      if (!a.far){ a.pxy[0]-=ux*push; a.pxy[1]-=uy*push; }
+      if (!b.far){ b.pxy[0]+=ux*push; b.pxy[1]+=uy*push; }
+      moved=true;
+    }
+    if (!moved) break;
+  }
+  pts.forEach(p => { p.pxy[0]=Math.min(W-PADX, Math.max(PADX, p.pxy[0])); p.pxy[1]=Math.min(H-PADY, Math.max(PADY, p.pxy[1])); });
+  // scale bar, bottom left (Google's own sits outside the crop)
+  const choices=[30.48,60.96,152.4,304.8,609.6,1609.344,3218.688]; // 100 ft … 2 mi
+  let bar=choices[0]; for (const c of choices){ if (c/mpp <= 170) bar=c; }
+  const barPx=bar/mpp;
+
+  let s = '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Map of the day with numbered stops">';
+  let prev=null;
+  pts.forEach(p => {
+    if (prev) s += '<line x1="'+prev.pxy[0].toFixed(1)+'" y1="'+prev.pxy[1].toFixed(1)+'" x2="'+p.pxy[0].toFixed(1)+'" y2="'+p.pxy[1].toFixed(1)+'" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" stroke-dasharray="0.1 11" opacity=".75"/>';
+    prev=p;
+  });
+  pts.forEach(p => {
+    if (p.far) return;
+    const dd=Math.hypot(p.pxy[0]-p.xy[0], p.pxy[1]-p.xy[1]);
+    if (dd > 8) s += '<line x1="'+p.xy[0].toFixed(1)+'" y1="'+p.xy[1].toFixed(1)+'" x2="'+p.pxy[0].toFixed(1)+'" y2="'+p.pxy[1].toFixed(1)+'" stroke="#fff" stroke-width="5" stroke-linecap="round"/><line x1="'+p.xy[0].toFixed(1)+'" y1="'+p.xy[1].toFixed(1)+'" x2="'+p.pxy[0].toFixed(1)+'" y2="'+p.pxy[1].toFixed(1)+'" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/><circle cx="'+p.xy[0].toFixed(1)+'" cy="'+p.xy[1].toFixed(1)+'" r="6" fill="var(--accent)" stroke="#fff" stroke-width="2.5"/>';
+  });
+  pts.forEach(p => {
+    const [x,y]=p.pxy;
+    if (p.hotel){
+      s += '<g><rect x="'+(x-21).toFixed(1)+'" y="'+(y-21).toFixed(1)+'" width="42" height="42" rx="11" fill="#16213A" stroke="#fff" stroke-width="4"/><text x="'+x.toFixed(1)+'" y="'+(y+9).toFixed(1)+'" text-anchor="middle" font-family="var(--display)" font-weight="900" font-size="25" fill="#fff">H</text></g>';
+    } else {
+      s += '<g><circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="23" fill="var(--accent)" stroke="#fff" stroke-width="4"/><text x="'+x.toFixed(1)+'" y="'+(y+8.5).toFixed(1)+'" text-anchor="middle" font-family="var(--mono)" font-weight="600" font-size="24" fill="#fff">'+p.num+'</text></g>';
+    }
+    if (p.far){
+      const dx=x-MAP_CX, dy=y-MAP_CY; const vert = Math.abs(dy) > Math.abs(dx);
+      const arrow = vert ? (dy>0 ? '↓' : '↑') : (dx>0 ? '→' : '←');
+      // label under the pin (over it at the bottom edge), hugging the near side
+      const onBottom = y > H-PADY-2;
+      const lx = onBottom ? (x < W/2 ? x+32 : x-32) : x;
+      const anchor = onBottom ? (x < W/2 ? 'start' : 'end') : (x < W*0.3 ? 'start' : x > W*0.7 ? 'end' : 'middle');
+      const ly = onBottom ? y+7 : y+42;
+      s += '<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" text-anchor="'+anchor+'" font-family="var(--mono)" font-weight="600" font-size="20" fill="#16213A" paint-order="stroke" stroke="#fff" stroke-width="6" stroke-linejoin="round">'+esc(p.label)+' · '+fmtKm(p.dist)+' '+arrow+'</text>';
+    }
+  });
+  const bx=22, by=H-36;
+  s += '<g stroke="#16213A" stroke-width="3"><line x1="'+bx+'" y1="'+by+'" x2="'+(bx+barPx).toFixed(1)+'" y2="'+by+'"/><line x1="'+bx+'" y1="'+(by-7)+'" x2="'+bx+'" y2="'+(by+7)+'"/><line x1="'+(bx+barPx).toFixed(1)+'" y1="'+(by-7)+'" x2="'+(bx+barPx).toFixed(1)+'" y2="'+(by+7)+'"/></g>';
+  s += '<text x="'+(bx+barPx+10).toFixed(1)+'" y="'+(by+6)+'" font-family="var(--mono)" font-weight="600" font-size="17" fill="#16213A" paint-order="stroke" stroke="#fff" stroke-width="5">'+fmtKm(bar)+'</text>';
+  s += '</svg>';
+  const live = 'https://www.google.com/maps/@'+cLat+','+cLng+','+m.z+'z';
+  return '<a class="mapwrap" href="'+live+'" target="_blank" rel="noopener" aria-label="Open this area in Google Maps"><img src="'+m.img+'" width="'+W+'" height="'+H+'" alt="Google Maps capture of '+esc(day.where)+'" loading="lazy" decoding="async">'+s+'<span class="tip">Tap to open</span></a>';
+}
+
+/* whole-day route: hotel → pinned stops, skipping far-away ones, as a Google Maps walking overview */
+function dayRouteUrl(day){
+  const hotel = day.hotel ? HOTELS[day.hotel] : null;
+  const pts=[]; day.stops.forEach(st => { const p=stopPin(st), q=stopQ(st); if (p && q) pts.push({p,q}); });
+  if (pts.length < 2) return null;
+  const cLat = median(pts.map(x=>x.p[0])), cLng = median(pts.map(x=>x.p[1]));
+  const near = pts.filter(x => haversine(x.p,[cLat,cLng]) < 12000);
+  if (near.length < 2) return null;
+  const origin = (hotel && day.startAtHotel) ? hotel.q : near[0].q;
+  const seq = (hotel && day.startAtHotel) ? near : near.slice(1);
+  const dest = seq[seq.length-1].q;
+  const wps = seq.slice(0,-1).map(x=>x.q);
+  let u = 'https://www.google.com/maps/dir/?api=1&origin=' + enc(origin) + '&destination=' + enc(dest) + '&travelmode=walking';
+  if (wps.length) u += '&waypoints=' + enc(wps.join('|'));
+  return u;
+}
+
+/* ---------- rendering ---------- */
+function chipHtml(st){
+  const out=[];
+  if (st.f==='res') out.push('<span class="chip res"><span class="dot"></span>Reserved · timed</span>');
+  if (st.f==='must') out.push('<span class="chip must"><span class="dot"></span>Must do</span>');
+  if (st.f==='fly') out.push('<span class="chip fly">✈ Flight</span>');
+  if (st.tr) out.push('<span class="chip">'+transitIcon(st.tr)+esc(st.tr)+'</span>');
+  return out.join('');
+}
+function linkBtns(links){
+  return (links||[]).map(l => '<a class="btn media" href="'+esc(l.u)+'" target="_blank" rel="noopener">'+(l.k==='yt'?SV.play:l.k==='ig'?SV.ig:SV.link)+esc(l.t)+'</a>').join('');
+}
+function stopCard(day, st, i, prevQ){
+  const pin = stopPin(st), q = stopQ(st);
+  const id = day.id+'-'+i;
+  const done = !!DONE[id];
+  const numTag = st.num ? '<span class="n">'+st.num+'</span>' : '';
+  const cls = st.k==='hotel' ? 'station hotel' : (st.num ? 'station' : 'station hollow');
+  const marker = '<button class="'+cls+'" data-id="'+id+'" aria-label="Mark done">'+catIcon(st)+numTag+'</button>';
+  const photo = (key, q, name) => {
+    if (!key || !PHOTOS.has(key)) return '';
+    const c = CREDITS[key];
+    const href = c ? commonsUrl(c.t) : mapsSearch(q||name);
+    const alt = c ? esc(name)+' (photo: '+esc(c.a)+', '+esc(c.l)+', Wikimedia Commons)' : 'Google Street View outside '+esc(name);
+    const credit = c ? '<div class="credit">Photo: '+esc(c.a)+' · '+esc(c.l)+' · <a href="'+href+'" target="_blank" rel="noopener">Wikimedia Commons</a></div>' : '';
+    return '<a href="'+href+'" target="_blank" rel="noopener"><img class="photo" src="img/'+key+'.jpg" width="900" height="600" loading="lazy" decoding="async" alt="'+alt+'"></a>' + credit;
+  };
+  let body='';
+  if (st.split){
+    body = '<div class="who">' + st.split.map(sp => {
+      let acts='';
+      if (sp.q) acts += '<a class="btn" href="'+mapsSearch(sp.q)+'" target="_blank" rel="noopener">'+SV.pin+'Maps</a>';
+      acts += linkBtns(sp.l);
+      return '<div>'+photo(sp.ph, sp.q, sp.t)+'<div class="lbl">'+esc(sp.who)+'</div><div class="t">'+esc(sp.t)+'</div>'+(sp.d?'<div class="d">'+esc(sp.d)+'</div>':'')+(sp.tr?'<div class="chips"><span class="chip">'+transitIcon(sp.tr)+esc(sp.tr)+'</span></div>':'')+(acts?'<div class="acts">'+acts+'</div>':'')+'</div>';
+    }).join('') + '</div>';
+  } else {
+    body = '<div class="t">'+esc(st.t)+'</div>' + (st.d ? '<div class="d">'+esc(st.d)+'</div>' : '');
+  }
+  const topPhoto = st.split ? '' : photo(st.ph, q, st.short||st.t);
+  let acts='';
+  if (!st.split){
+    if (q) acts += '<a class="btn" href="'+mapsSearch(q)+'" target="_blank" rel="noopener">'+SV.pin+'Maps</a>';
+    if (q && prevQ && pin) acts += '<a class="btn" href="'+mapsDir(prevQ, q)+'" target="_blank" rel="noopener">'+SV.dir+'Directions</a>';
+    acts += linkBtns(st.l);
+  } else if (prevQ && q && pin){
+    acts += '<a class="btn" href="'+mapsDir(prevQ, q)+'" target="_blank" rel="noopener">'+SV.dir+'Directions</a>';
+  }
+  const chips = chipHtml(st);
+  return '<div class="stop'+(done?' done':'')+'" id="'+id+'">'+marker+
+    '<div class="card">'+topPhoto+'<div class="slot"><span>'+esc(st.s)+'</span>'+(st.time?'<span class="time">'+esc(st.time)+'</span>':'')+'</div>'+
+    body + (chips?'<div class="chips">'+chips+'</div>':'') + (acts?'<div class="acts">'+acts+'</div>':'') +
+    (st.note?'<p class="note">'+esc(st.note)+'</p>':'') + '</div></div>';
+}
+function flightCard(day){
+  const f = day.flight;
+  return '<div class="flightcard"><div class="ap">'+f.from+'<small>'+(f.from==='SEA'?'Seattle':'Narita')+'</small><span class="t">'+f.dep+'</span></div>'+
+    '<div class="mid"><span>'+esc(f.al)+'</span><div class="plane"></div><span>'+(f.from==='SEA'?'Nov 21 → 22':'Nov 29')+'</span></div>'+
+    '<div class="ap right">'+f.to+'<small>'+(f.to==='NRT'?'Tokyo Narita':'Seattle')+'</small><span class="t">'+f.arr+'</span></div></div>';
+}
+function renderDay(day){
+  // number the pinned stops
+  let n=0; day.stops.forEach(st => { st.num = stopPin(st) ? ++n : 0; });
+  const hotel = day.hotel ? HOTELS[day.hotel] : null;
+  const accent = cityColor(day.city);
+  let h = '<section class="day" style="--accent:'+accent+'">';
+  h += '<div class="dayhead"><div class="eyebrow"><span class="pill">Day '+day.n+'</span><span>'+day.dow+' '+day.mon+' '+day.day+'</span></div>';
+  h += '<h2>'+esc(day.title)+'</h2><div class="where">'+esc(day.where)+'</div>';
+  if (hotel) h += '<a class="hotelbar" href="'+mapsSearch(hotel.q)+'" target="_blank" rel="noopener" style="text-decoration:none"><div class="ico">H</div><div class="txt"><b>'+esc(hotel.name)+'</b><span>'+esc(hotel.addr)+'</span></div></a>';
+  h += '</div>';
+  const map = dayMap(day);
+  if (map){
+    const legend = day.stops.filter(st=>st.num).map(st => '<span><b>'+st.num+'</b>'+esc(st.short||st.t)+'</span>').join('');
+    const route = dayRouteUrl(day);
+    h += '<div class="mapcard"><div class="maphead"><span class="eyebrow">Map of the day</span><span class="eyebrow">'+(day.city==='osaka'?'Osaka':'Tokyo')+'</span></div>'+map+
+      '<div class="legend">'+(hotel && day.startAtHotel ? '<span class="h"><b style="color:var(--ink)">H</b>Hotel</span>' : '')+legend+'</div>'+
+      (route ? '<div class="mapfoot"><a class="btn primary" href="'+route+'" target="_blank" rel="noopener">'+SV.route+'Whole day in Google Maps</a></div>' : '')+'</div>';
+  }
+  if (day.flight) h += flightCard(day);
+  h += '<div class="key"><span>'+CAT.food+'Food</span><span>'+CAT.shop+'Shopping</span><span>'+CAT.hotel+'Hotel</span><span>'+CAT.train+'Travel</span><span>'+CAT.act+'Activity</span></div>';
+  h += '<div class="line">';
+  let prevQ = (hotel && day.startAtHotel) ? hotel.q : null;
+  day.stops.forEach((st,i) => {
+    h += stopCard(day, st, i, prevQ);
+    const q = stopQ(st); if (q && stopPin(st)) prevQ = q;
+  });
+  h += '</div></section>';
+  return h;
+}
+
+function renderBookings(){
+  let h = '<section class="page"><h2>Bookings</h2><p class="lead">Everything with a reservation or a fixed time, in order. Yellow in the sheet is reserved or timed. Pink is mandatory.</p>';
+  DAYS.forEach(day => {
+    const items = day.stops.filter(st => st.f==='res' || st.f==='must' || st.book);
+    if (!items.length) return;
+    h += '<div class="group"><h3><span class="sw" style="--c:'+cityColor(day.city)+'"></span>Day '+day.n+' · '+day.dow+' '+day.mon+' '+day.day+' · '+esc(day.where)+'</h3><div class="rows">';
+    items.forEach(st => {
+      const title = st.split ? st.split.map(sp=>sp.who+': '+sp.t).join(' · ') : st.t;
+      const detail = st.split ? st.split.map(sp=>sp.d).filter(Boolean).join(' · ') : (st.d||'');
+      const idx = day.stops.indexOf(st);
+      h += '<a class="row" href="#'+day.id+'" data-jump="'+day.id+'-'+idx+'"><div class="tm">'+(st.time?esc(st.time):'—')+'<small>'+esc(st.s)+'</small></div><div class="bd"><b>'+esc(title)+'</b>'+(detail?'<span>'+esc(detail)+'</span>':'')+'<div class="chips">'+chipHtml(st)+(st.book?'<span class="chip res"><span class="dot"></span>Reservation</span>':'')+'</div></div></a>';
+    });
+    h += '</div></div>';
+  });
+  h += '</section>';
+  return h;
+}
+function renderStay(){
+  let h = '<section class="page"><h2>Stay &amp; travel</h2><p class="lead">Hotels, flights, trains and the two luggage shipments.</p><div class="stays">';
+  Object.values(HOTELS).forEach(ho => {
+    h += '<div class="stay" style="--accent:'+cityColor(ho.city)+'"><div class="nights">'+esc(ho.nights)+'</div><b>'+esc(ho.name)+'</b><div class="addr">'+esc(ho.addr)+'</div><div class="acts" style="margin-top:4px"><a class="btn" href="'+mapsSearch(ho.q)+'" target="_blank" rel="noopener">'+SV.pin+'Maps</a><button class="btn copy" data-copy="'+esc(ho.name+', '+ho.addr)+'">Copy address</button></div></div>';
+  });
+  h += '</div>';
+  h += '<div class="group"><h3><span class="sw" style="--c:var(--travel)"></span>Flights · Japan Airlines</h3><div class="rows">';
+  h += '<div class="row"><div class="tm">11:50am<small>Sat Nov 21</small></div><div class="bd"><b>Seattle → Tokyo</b><span>Leave for the airport 7:30am. Arrive Narita 3:05pm Sunday Nov 22. Taxi pickup booked on Klook.</span></div></div>';
+  h += '<div class="row"><div class="tm">6:10pm<small>Sun Nov 29</small></div><div class="bd"><b>Tokyo → Seattle</b><span>Leave for Narita at 2pm, taxi pickup booked on Klook. Arrive Seattle 9:50am the same day.</span></div></div>';
+  h += '</div></div>';
+  h += '<div class="group"><h3><span class="sw" style="--c:var(--travel)"></span>Trains · booked on Klook</h3><div class="rows">';
+  h += '<a class="row" href="#day-3"><div class="tm">10:00am<small>Tue Nov 24</small></div><div class="bd"><b>Tokyo Station → Shin-Osaka</b><span>Arrives 12:30pm. Leave the hotel at 9:15am, 15 min by car.</span></div></a>';
+  h += '<a class="row" href="#day-7"><div class="tm">9:00am<small>Sat Nov 28</small></div><div class="bd"><b>Shin-Osaka → Tokyo</b><span>Arrives 11:27am. Leave the hotel at 8am, 25 min by subway.</span></div></a>';
+  h += '</div></div>';
+  h += '<div class="group"><h3><span class="sw" style="--c:var(--must-dot)"></span>Luggage · mandatory</h3><div class="rows">';
+  h += '<a class="row" href="#day-1"><div class="tm">Evening<small>Sun Nov 22</small></div><div class="bd"><b>Ship luggage to Osaka</b><span>From MIMARU Tokyo Ueno North.</span><div class="chips"><span class="chip must"><span class="dot"></span>Must do</span></div></div></a>';
+  h += '<a class="row" href="#day-5"><div class="tm">Evening<small>Thu Nov 26</small></div><div class="bd"><b>Ship luggage to Tokyo</b><span>From Mercure Tokyu Stay Osaka Namba.</span><div class="chips"><span class="chip must"><span class="dot"></span>Must do</span></div></div></a>';
+  h += '</div></div>';
+  h += '<p class="srcnote">Built from the family planner sheet, Nov 21 – 29 columns only. Each day’s map is a Google Maps capture with the stops pinned from their Google listings; the storefront photos are Google Street View captures, with Wikimedia Commons photos where Street View had no exterior (photographer and license on each image, tap to open the file page). The Maps and Directions buttons open the live map, so trust that over the capture. Tap a stop’s icon to check it off (saved on this phone only).</p>';
+  h += '</section>';
+  return h;
+}
+
+/* ---------- navigation ---------- */
+const TABS = [
+  {id:'days', label:'Days', icon:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>'},
+  {id:'bookings', label:'Bookings', icon:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'},
+  {id:'stay', label:'Stay', icon:'<svg viewBox="0 0 24 24"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-7h6v7"/></svg>'}
+];
+let current = {tab:'days', day: defaultDay()};
+
+function renderStrip(){
+  const t = todayJP();
+  $('#daystrip').innerHTML = DAYS.map(d => '<button class="daychip'+(d.date===t?' today':'')+'" data-day="'+d.id+'" style="--c:'+cityColor(d.city)+'" aria-current="'+(current.tab==='days' && current.day===d.id)+'"><span class="dow">'+d.dow+'</span><span class="num">'+d.day+'</span><span class="dot"></span></button>').join('');
+  const cur = $('#daystrip [aria-current="true"]');
+  if (cur && cur.scrollIntoView) { try { cur.scrollIntoView({block:'nearest', inline:'center', behavior:'instant'}); } catch(e) { cur.scrollIntoView(); } }
+}
+function renderTabs(){
+  $('#tabs').innerHTML = TABS.map(t => '<button class="tab" data-tab="'+t.id+'" aria-current="'+(current.tab===t.id)+'">'+t.icon+'<span>'+t.label+'</span></button>').join('');
+}
+function render(){
+  const view = $('#view');
+  if (current.tab==='days'){ const d = DAYS.find(x=>x.id===current.day) || DAYS[0]; view.innerHTML = renderDay(d); $('#daystrip').hidden = false; }
+  else if (current.tab==='bookings'){ view.innerHTML = renderBookings(); $('#daystrip').hidden = true; }
+  else { view.innerHTML = renderStay(); $('#daystrip').hidden = true; }
+  renderStrip(); renderTabs();
+  window.scrollTo(0,0);
+}
+function go(tab, day){
+  current.tab = tab; if (day) current.day = day;
+  const hash = tab==='days' ? '#'+current.day : '#'+tab;
+  if (location.hash !== hash) { history.replaceState(null, '', hash); }
+  render();
+}
+function fromHash(){
+  const h = (location.hash||'').replace('#','');
+  if (h==='bookings' || h==='stay') { current.tab=h; }
+  else if (DAYS.some(d=>d.id===h)) { current.tab='days'; current.day=h; }
+  render();
+}
+window.addEventListener('hashchange', fromHash);
+document.addEventListener('click', e => {
+  const chip = e.target.closest('.daychip'); if (chip){ go('days', chip.dataset.day); return; }
+  const tab = e.target.closest('.tab'); if (tab){ go(tab.dataset.tab, null); return; }
+  const st = e.target.closest('.station'); if (st){ const id=st.dataset.id; if (DONE[id]) delete DONE[id]; else DONE[id]=1; saveDone(); st.closest('.stop').classList.toggle('done', !!DONE[id]); return; }
+  const cp = e.target.closest('.copy'); if (cp){
+    const txt = cp.dataset.copy;
+    const ok = () => { cp.textContent='Copied'; setTimeout(()=>cp.textContent='Copy address', 1500); };
+    try { navigator.clipboard.writeText(txt).then(ok).catch(()=>{ const r=document.createRange(); r.selectNodeContents(cp.closest('.stay').querySelector('.addr')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); }); } catch(err) { }
+    return;
+  }
+  const jump = e.target.closest('[data-jump]'); if (jump){
+    e.preventDefault(); const [, , day] = jump.dataset.jump.match(/^((day-\d)-\d+)$/) || [];
+    const dayId = jump.dataset.jump.replace(/-\d+$/, '');
+    go('days', dayId);
+    const el = document.getElementById(jump.dataset.jump); if (el) { el.scrollIntoView({block:'center'}); }
+    return;
+  }
+});
+fromHash();
+</script>
+
+</body>
+</html>
