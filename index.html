@@ -635,8 +635,8 @@ function dayMap(day){
   s += '<g stroke="#16213A" stroke-width="3"><line x1="'+bx+'" y1="'+by+'" x2="'+(bx+barPx).toFixed(1)+'" y2="'+by+'"/><line x1="'+bx+'" y1="'+(by-7)+'" x2="'+bx+'" y2="'+(by+7)+'"/><line x1="'+(bx+barPx).toFixed(1)+'" y1="'+(by-7)+'" x2="'+(bx+barPx).toFixed(1)+'" y2="'+(by+7)+'"/></g>';
   s += '<text x="'+(bx+barPx+10).toFixed(1)+'" y="'+(by+6)+'" font-family="var(--mono)" font-weight="600" font-size="17" fill="#16213A" paint-order="stroke" stroke="#fff" stroke-width="5">'+fmtKm(bar)+'</text>';
   s += '</svg>';
-  const live = MAPAPP === 'apple' ? 'https://maps.apple.com/?ll='+cLat+','+cLng+'&z='+m.z : 'https://www.google.com/maps/@'+cLat+','+cLng+','+m.z+'z';
-  return '<a class="mapwrap" href="'+live+'" target="_blank" rel="noopener" aria-label="Open this area in Google Maps"><img src="'+m.img+'" width="'+W+'" height="'+H+'" alt="Google Maps capture of '+esc(day.where)+'" loading="lazy" decoding="async">'+s+'<span class="tip">Tap to open</span></a>';
+  const live = dayRouteUrl(day) || (MAPAPP === 'apple' ? 'https://maps.apple.com/?ll='+cLat+','+cLng+'&z='+m.z : 'https://www.google.com/maps/@'+cLat+','+cLng+','+m.z+'z');
+  return '<a class="mapwrap" href="'+live+'" target="_blank" rel="noopener" aria-label="Open the route for the day"><img src="'+m.img+'" width="'+W+'" height="'+H+'" alt="Google Maps capture of '+esc(day.where)+'" loading="lazy" decoding="async">'+s+'<span class="tip">Tap for the route</span></a>';
 }
 
 /* whole-day route: hotel → pinned stops, skipping far-away ones, as a Google Maps walking overview */
@@ -645,12 +645,23 @@ function dayRouteUrl(day){
   const pts=[]; day.stops.forEach(st => { const p=stopPin(st), q=stopQ(st); if (p && q) pts.push({p,q}); });
   if (pts.length < 2) return null;
   const cLat = median(pts.map(x=>x.p[0])), cLng = median(pts.map(x=>x.p[1]));
-  const near = pts.filter(x => haversine(x.p,[cLat,cLng]) < 12000);
-  if (near.length < 2) return null;
-  const origin = (hotel && day.startAtHotel) ? hotel.q : near[0].q;
-  const seq = (hotel && day.startAtHotel) ? near : near.slice(1);
+  let near = pts.filter(x => haversine(x.p,[cLat,cLng]) < 12000);
+  // one nearby stop (arrival day): route from the hotel to it
+  const fromHotel = hotel && (day.startAtHotel || near.length < 2);
+  if (fromHotel && near.length < 2) near = pts.filter(x => haversine(x.p, hotel.p) < 12000);
+  if (near.length < (fromHotel ? 1 : 2)) return null;
+  const origin = fromHotel ? hotel.q : near[0].q;
+  const seq = fromHotel ? near : near.slice(1);
   const dest = seq[seq.length-1].q;
   const wps = seq.slice(0,-1).map(x=>x.q);
+  if (MAPAPP === 'apple'){
+    // Apple Maps directions link (iOS 18.4+): start, each stop as a waypoint, last stop; exact coordinates so every stop lands right
+    const ll = x => x[0] + ',' + x[1];
+    const o = fromHotel ? hotel.p : near[0].p;
+    let a = 'https://maps.apple.com/directions?source=' + ll(o);
+    seq.slice(0,-1).forEach(x => { a += '&waypoint=' + ll(x.p); });
+    return a + '&destination=' + ll(seq[seq.length-1].p) + '&mode=walking';
+  }
   let u = 'https://www.google.com/maps/dir/?api=1&origin=' + enc(origin) + '&destination=' + enc(dest) + '&travelmode=walking';
   if (wps.length) u += '&waypoints=' + enc(wps.join('|'));
   return u;
@@ -731,7 +742,7 @@ function renderDay(day){
     const route = dayRouteUrl(day);
     h += '<div class="mapcard"><div class="maphead"><span class="eyebrow">Map of the day · '+(day.city==='osaka'?'Osaka':'Tokyo')+'</span><span class="seg" role="group" aria-label="Open links in"><button class="mapapp" data-app="google" aria-pressed="'+(MAPAPP==='google')+'">Google</button><button class="mapapp" data-app="apple" aria-pressed="'+(MAPAPP==='apple')+'">Apple</button></span></div>'+map+
       '<div class="legend">'+(hotel && day.startAtHotel ? '<span class="h"><b style="color:var(--ink)">H</b>Hotel</span>' : '')+legend+'</div>'+
-      (route ? '<div class="mapfoot"><a class="btn primary" href="'+route+'" target="_blank" rel="noopener">'+SV.route+'Whole day in Google Maps</a></div>' : '')+'</div>';
+      (route ? '<div class="mapfoot"><a class="btn primary" href="'+route+'" target="_blank" rel="noopener">'+SV.route+'Whole day in '+(MAPAPP==='apple'?'Apple':'Google')+' Maps</a></div>' : '')+'</div>';
   }
   if (day.flight) h += flightCard(day);
   h += '<div class="key"><span>'+CAT.food+'Food</span><span>'+CAT.shop+'Shopping</span><span>'+CAT.hotel+'Hotel</span><span>'+CAT.train+'Travel</span><span>'+CAT.act+'Activity</span></div>';
