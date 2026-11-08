@@ -23,6 +23,7 @@
   --fly-bg:#E4E7EC; --fly-fg:#3B4457;
   --map-bg:#F7F8F5; --map-grid:#DDE2E8; --map-water:#DCE9F2;
   --focus:#2F6FED;
+  --meal-tint:rgba(47,111,237,.06);
   --display:'Zen Kaku Gothic New','Hiragino Sans','Noto Sans JP',system-ui,sans-serif;
   --body:'IBM Plex Sans','Helvetica Neue',Arial,system-ui,sans-serif;
   --mono:'IBM Plex Mono','SF Mono',Menlo,monospace;
@@ -38,6 +39,7 @@
     --fly-bg:#2A3345; --fly-fg:#CFD6E4;
     --map-bg:#121827; --map-grid:#243049; --map-water:#1B2A3D;
     --focus:#7FA6FF;
+    --meal-tint:rgba(127,166,255,.08);
     color-scheme:dark;
   }
 }
@@ -50,6 +52,7 @@
   --fly-bg:#2A3345; --fly-fg:#CFD6E4;
   --map-bg:#121827; --map-grid:#243049; --map-water:#1B2A3D;
   --focus:#7FA6FF;
+  --meal-tint:rgba(127,166,255,.08);
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -195,6 +198,37 @@ button{font:inherit; color:inherit}
 .srcnote{font-size:12px; color:var(--ink-3); margin-top:24px; line-height:1.5}
 .srcnote a{color:var(--ink-2)}
 
+/* Week at a glance */
+.weekbar{display:flex; justify-content:space-between; align-items:center; gap:8px; margin:0 0 8px}
+.weekbtn{display:inline-flex; align-items:center; gap:6px; padding:6px 11px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; cursor:pointer}
+.weekbtn svg{width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; transition:transform .2s}
+.weekbtn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.top.wk-open{position:static}
+.weekpanel{--wkw:min(1320px, calc(100vw - 32px)); width:var(--wkw); margin:0 0 10px calc((100% - var(--wkw)) / 2); background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+.wk-scroll{overflow:auto; max-height:70vh; -webkit-overflow-scrolling:touch}
+.wk{border-collapse:separate; border-spacing:0; font-size:11.5px; line-height:1.3; min-width:max-content; width:100%}
+.wk th, .wk td{vertical-align:top; text-align:left; padding:6px 7px; border-right:1px solid var(--line); border-bottom:1px solid var(--line)}
+.wk td{width:124px; min-width:124px; max-width:124px; cursor:pointer}
+@media (min-width:900px){ .wk td{width:132px; min-width:132px; max-width:132px} }
+.wk td b{display:block; font-family:var(--display); font-weight:700; font-size:12px; color:var(--ink)}
+.wk td span{display:block; white-space:pre-line; color:var(--ink-2); margin-top:2px}
+.wk thead th{position:sticky; top:0; z-index:2; background:var(--surface); padding:0}
+.wk .wk-lab{position:sticky; left:0; z-index:1; background:var(--surface-2); font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-2); font-weight:600; width:70px; min-width:70px; max-width:70px}
+.wk thead .wk-lab{z-index:3}
+.wk-day{display:grid; gap:1px; width:100%; text-align:left; padding:7px; border:0; border-top:4px solid var(--c); background:var(--surface); color:var(--ink); cursor:pointer}
+.wk-day .wk-n{font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--c); font-weight:600}
+.wk-day .wk-d{font-family:var(--display); font-weight:900; font-size:14px}
+.wk-day .wk-w{font-size:10.5px; color:var(--ink-2); font-weight:500; white-space:normal}
+.wk tr.meal td, .wk tr.meal .wk-lab{background-image:linear-gradient(var(--meal-tint), var(--meal-tint))}
+.wk td.res{background:var(--res-bg)} .wk td.res b{color:var(--res-fg)}
+.wk td.must{background:var(--must-bg)} .wk td.must b{color:var(--must-fg)}
+.wk td.fly{background:var(--fly-bg)}
+.wk tr.hot td{background:var(--surface-2)}
+.wk-key{display:flex; flex-wrap:wrap; gap:6px 12px; padding:8px 10px; font-size:11px; color:var(--ink-3); border-top:1px solid var(--line)}
+.wk-key .k{display:inline-flex; align-items:center; gap:5px; color:var(--ink-2)}
+.wk-key .k::before{content:""; width:10px; height:10px; border-radius:3px}
+.wk-key .res::before{background:var(--res-dot)} .wk-key .must::before{background:var(--must-dot)} .wk-key .fly::before{background:var(--fly-fg); opacity:.5}
+
 /* Bottom tab bar */
 .tabbar{position:fixed; left:0; right:0; bottom:0; z-index:9; background:var(--surface); border-top:1px solid var(--line);
   padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
@@ -224,6 +258,8 @@ button{font:inherit; color:inherit}
       <h1>Tokyo <span>·</span> Osaka <span>2026</span></h1>
       <div class="sub">Nov 21 – 29 · 9 days</div>
     </div>
+    <div class="weekbar"><button class="weekbtn" id="weekbtn" aria-expanded="false" aria-controls="weekpanel">Week at a glance<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>
+    <div class="weekpanel" id="weekpanel" hidden></div>
     <nav class="daystrip" id="daystrip" aria-label="Days"></nav>
   </header>
   <main id="view"></main>
@@ -796,6 +832,38 @@ function renderStay(){
   return h;
 }
 
+/* Week at a glance: the planner sheet grid, rows 4 to 15, columns B to J, as typed (yellow = res, pink = must, gray = fly) */
+const WEEK = [{"l": "Breakfast", "meal": true, "c": [["Leave for Airport\n7:30am", "res"], ["Flight", "fly"], ["NAKAU\n(15min subway)", ""], ["NAKAU\n(15min Subway)", ""], ["Nakau - Chuo Ward\n(10min walk)", ""], ["Nakau - Chuo Ward\n(10min walk)", ""], ["Nakau - Chuo Ward\n(10min walk)", ""], ["Nakau - Chuo Ward\n(10min walk)", ""], ["NAKAU\n(10min walk)", ""]]}, {"l": "Morning Activity", "meal": false, "c": [null, null, ["Asakusa street food\nMelon Pan, Crepes, Sweet Potato\n(20min subway)", ""], ["Train to Osaka\n10am Tokyo Station\n12:30pm Arrival\n(15min car -\nLeave at 9:15am)\nKlook", "res"], ["Round1 Stadium Spo-Cha\n(10min walk)", ""], null, null, ["Train to Tokyo\n9am Shin Osaka\n11:27am Arrival\n(25min subway -\nLeave at 8am)\nKlook", "res"], ["Imperial Palace Run", ""]]}, {"l": "Morning Activity", "meal": false, "c": [null, null, ["Uniqlo sale\n(Opens 10am)", ""], ["Hotel\n(25min subway)", ""], null, ["Mitsui Shopping Park LaLaport KADOMA MITSUI OUTLET PARK OSAKA KADOMA\n(30min taxi)\n(Open 10am)", ""], ["Assort Osaka Haircut\n(10min walk)\n10am Reservation\nGoogle", ""], ["Pokemon Legend Research\nNihonbashi / Yaesu\n(Near Tokyo Station)\n(10min walk)\n\nPokemon Center DX", ""], ["Pokémon Pika Pika Festival 2026\nMitsui Outlet Park Kisarazu\n3pm Pikachu", ""]]}, {"l": "Lunch", "meal": true, "c": [["Depart to Tokyo\nJapan Airlines\n11:50am", "fly"], null, ["Katsudon-ya Zuicho\n(11:30am Open - Get there at 11)\n(30min taxi - leave 10:30am)", ""], ["Ichiran Beef Dotonbori\n(3min walk)", ""], ["Parents - Wagyu Hokusai\n(3min walk)\n\nKids - Ichiran Beef Dotonbori", ""], null, ["Parents - Hitomukashi\n(14-26 Nanbasennichimae, Chuo Ward, Osaka, 542-0075)\n(15min subway)\n\nKids - Ichiran Beef Dotonbori", ""], ["Hotel\n(20min subway)", ""], ["Refa hair shop", ""]]}, {"l": "Afternoon Activity", "meal": false, "c": [null, null, ["Nintendo Tokyo / Pokemon Shibuya\n(10min walk)", ""], ["Pokémon Center DX\n(Namba)\n(10min walk)", ""], ["goyemon\n(Sandals)\n(15min walk)", ""], null, ["Amerikamura\n(Osaka's Harajuku)\n(5min walk)", ""], ["Ginza Kimuraya\n(dude raisin bread, 10-8pm daily)\n(10min walk)", ""], ["7-11 Photos", ""]]}, {"l": "Afternoon Activity", "meal": false, "c": [null, null, ["3 Coins Harajuku / Mooosh Squishy\n(15min walk)", ""], ["Parco Mall\n(5min walk)", ""], ["Miracle World\n(10min subway)\n3pm Reservation\nKlook", "res"], null, ["Tsutenkaku Tower Slide\n(20min subway)", ""], ["GU, PLST, Uniqlo, 3 Coins\nGinza\n(Open 11am)\n(5min walk)", ""], ["Leave for Narita Airport\n2pm\n\nTaxi Pickup\nKlook", "res"]]}, {"l": "Snack", "meal": true, "c": [null, null, ["Nike Running Analysis\n(Harajuku)\n(5min taxi)\nNeed Reservations (3pm)", "res"], ["Kajitsu no hana Shinsaibashi\n(Daifuku)\n(6min walk)\n\nDekasan (Egg Sandwich)", ""], ["Candy Apple\n(5min walk)", ""], ["Idaten\n(If we haven't eaten)\n(35min taxi)", ""], null, ["Age 3 Ginza\n(cream sandwich fried, 11-7pm daily)\n(15min walk)", ""], null]}, {"l": "Afternoon Activity", "meal": false, "c": [null, ["Arrive\n3:05pm", "fly"], ["Sunshine City\n(20min Taxi)", ""], ["Don Quijote Ferris Wheel\n(5min walk)", ""], null, ["Hotel", ""], ["Hotel\n(20min subway)", ""], ["Hotel", ""], ["Depart to Seattle\nJapan Air\n6:10pm", "fly"]]}, {"l": "Afternoon Activity", "meal": false, "c": [null, ["Taxi Pickup\nKlook", "res"], ["7-11 snacks", ""], ["3 Coins\n(5min walk)", ""], ["Hotel", ""], ["harukas 300\n4pm for 4:45pm sunset\n(20min subway)", ""], ["Shinsaibashi Sunbowl\nBowling\n(5min walk)", ""], ["parents - massage\n(30min taxi)\n4pm reservation\nInstagram", "res"], null]}, {"l": "Dinner", "meal": true, "c": [null, ["Ameyoko Market\n(15min walk)", ""], ["TAMAGO-KEN\nIkebukuro Branch\nOmurice\n(5min walk)", ""], ["Matsusakagyu Yakiniku M Hanare Branch\n(5min walk)\n5pm Reservation\nGoogle", "res"], ["Ramen Ichiza Namba\n(eat at 5pm) - (10min walk)\n🍜 Bettei Takei (fish-based tsukemen)\n🍜 Kaneda (Creamy chicken paitan)\n🍜 Gyukkoshi (Wagyu paitan ramen)", ""], ["Parents - maruhana shinsaibashi (AYCE Crab)\n(20min subway)\n6:30pm Reservation\nTabelog\n\nKids - Dearbros (Omurice)\n(20min subway)", "res"], ["Parents - Kokuryu Osaka／Ebisubashi (Omakase)\n(10min walk)\n5pm Reservation\nGoogle\n\nKids - Kitan Hibiki (Burger)\n(10min walk)", "res"], null, ["Arrive\n9:50am", "fly"]]}, {"l": "Evening Activity", "meal": false, "c": [null, ["Ship luggage to Osaka", "must"], ["Hotel or Tokyo sky tree\n(30min taxi)", ""], ["Umeda Sky + Nintendo Osaka\n(20min taxi)\n(Nintendo closes at 8pm)", ""], ["teamLab\n(30min subway)\n6pm Reservation\nKlook", "res"], ["Ship luggage to Tokyo", "must"], ["7-11 snacks", ""], null, null]}];
+const WEEK_HOTELS = [{from:1, span:2, h:'ueno'}, {from:3, span:4, h:'namba'}, {from:7, span:1, h:'ginza'}];
+let WEEK_OPEN = false;
+function renderWeek(){
+  let h = '<div class="wk-scroll"><table class="wk"><thead><tr><th class="wk-lab"></th>';
+  DAYS.forEach(d => { h += '<th><button class="wk-day" data-day="'+d.id+'" style="--c:'+cityColor(d.city)+'"><span class="wk-n">Day '+d.n+'</span><span class="wk-d">'+d.dow+' '+d.mon+' '+d.day+'</span><span class="wk-w">'+esc(d.where)+'</span></button></th>'; });
+  h += '</tr></thead><tbody>';
+  WEEK.forEach(r => {
+    h += '<tr class="'+(r.meal?'meal':'')+'"><th class="wk-lab">'+esc(r.l)+'</th>';
+    r.c.forEach((c, i) => {
+      if (!c){ h += '<td></td>'; return; }
+      const lines = c[0].split('\n'); const t = lines.shift(); const rest = lines.join('\n').trim();
+      h += '<td class="'+c[1]+'" data-day="'+DAYS[i].id+'"><b>'+esc(t)+'</b>'+(rest?'<span>'+esc(rest)+'</span>':'')+'</td>';
+    });
+    h += '</tr>';
+  });
+  h += '<tr class="hot"><th class="wk-lab">Hotel</th><td></td>';
+  WEEK_HOTELS.forEach(x => { const ho = HOTELS[x.h]; h += '<td colspan="'+x.span+'" data-day="'+DAYS[x.from].id+'"><b>'+esc(ho.name)+'</b><span>'+esc(ho.nights)+'</span></td>'; });
+  h += '<td></td></tr></tbody></table></div>';
+  h += '<div class="wk-key"><span class="k res">Reserved or timed</span><span class="k must">Must do</span><span class="k fly">Flight</span><span>Tap any day to open it</span></div>';
+  return h;
+}
+function setWeek(open){
+  WEEK_OPEN = open;
+  const p = $('#weekpanel'), b = $('#weekbtn');
+  if (!p) return;
+  if (open && !p.dataset.built){ p.innerHTML = renderWeek(); p.dataset.built = '1'; }
+  p.hidden = !open; b.setAttribute('aria-expanded', open);
+  document.querySelector('.top').classList.toggle('wk-open', open);
+}
+
 /* ---------- navigation ---------- */
 const TABS = [
   {id:'days', label:'Days', icon:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>'},
@@ -837,6 +905,8 @@ function fromHash(){
 window.addEventListener('hashchange', fromHash);
 document.addEventListener('click', e => {
   const ma = e.target.closest('.mapapp'); if (ma){ setMapApp(ma.dataset.app); const y = window.scrollY; render(); window.scrollTo(0, y); return; }
+  const wb = e.target.closest('#weekbtn'); if (wb){ setWeek(!WEEK_OPEN); return; }
+  const wd = e.target.closest('#weekpanel [data-day]'); if (wd){ setWeek(false); go('days', wd.dataset.day); return; }
   const chip = e.target.closest('.daychip'); if (chip){ go('days', chip.dataset.day); return; }
   const tab = e.target.closest('.tab'); if (tab){ go(tab.dataset.tab, null); return; }
   const st = e.target.closest('.station'); if (st){ const id=st.dataset.id; if (DONE[id]) delete DONE[id]; else DONE[id]=1; saveDone(); st.closest('.stop').classList.toggle('done', !!DONE[id]); return; }
