@@ -110,11 +110,12 @@ button{font:inherit; color:inherit}
 .mapcard .mapwrap{position:relative; display:block; background:var(--surface-2)}
 .mapcard .mapwrap img{display:block; width:100%; height:auto}
 .mapcard .mapwrap svg{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
-.mapcard .mapwrap .tip{position:absolute; left:8px; top:8px; font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; background:rgba(255,255,255,.88); color:#16213A; padding:3px 7px; border-radius:6px}
+.mapcard .mapwrap .tip{position:absolute; right:8px; top:8px; font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; background:rgba(255,255,255,.88); color:#16213A; padding:3px 7px; border-radius:6px}
 .mapcard .legend{display:flex; flex-wrap:wrap; gap:4px 10px; padding:8px 12px 10px; font-size:12px; color:var(--ink-2); border-top:1px solid var(--line)}
 .mapcard .legend b{font-family:var(--mono); font-weight:600; color:var(--accent); margin-right:3px}
 .mapcard .legend .h{color:var(--ink)}
-.mapfoot{display:flex; gap:8px; padding:0 12px 12px; flex-wrap:wrap}
+.mapfoot{display:flex; gap:10px; padding:0 12px 12px; flex-wrap:wrap; align-items:center}
+.maphint{font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3)}
 .flightcard{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; margin:10px 0 6px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px}
 .flightcard .ap{font-family:var(--display); font-weight:900; font-size:30px; line-height:1; letter-spacing:-.02em}
 .flightcard .ap small{display:block; font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-2); font-weight:500; margin-top:6px}
@@ -273,7 +274,7 @@ const YT = u => ({t:'Video', u, k:'yt'});
 const HOTELS = {
   ueno:  {name:'MIMARU Tokyo Ueno North', addr:'7 Chome-14-4 Ueno, Taito City, Tokyo 110-0005', ph:'mimaru', q:'MIMARU Tokyo Ueno North', nights:'Nov 22 – 24 · 2 nights', city:'tokyo'},
   namba: {name:'Mercure Tokyu Stay Osaka Namba', addr:'2 Chome-2-4 Nishishinsaibashi, Chuo Ward, Osaka 542-0086', ph:'mercure', q:'Mercure Tokyu Stay Osaka Namba', nights:'Nov 24 – 28 · 4 nights', city:'osaka'},
-  ginza: {name:'Mitsui Garden Hotel Ginza Premier', addr:'8 Chome-13-1 Ginza, Chuo City, Tokyo 104-0061', ph:'mitsui-ginza', q:'Mitsui Garden Hotel Ginza Premier', nights:'Nov 28 – 29 · 1 night', city:'tokyo'}
+  ginza: {name:'Mitsui Garden Hotel Ginza-gochome', addr:'5-13-15 Ginza, Chuo City, Tokyo 104-0061', ph:'mitsui-gochome', q:'Mitsui Garden Hotel Ginza-gochome', nights:'Nov 28 – 29 · 1 night', city:'tokyo'}
 };
 
 /* stop fields: s slot · t title · d detail · tr transit · time · k kind (meal/act/fly/transit/hotel/bag)
@@ -372,11 +373,11 @@ const DAYS = [
    {s:'Breakfast', t:'Nakau', d:'Chuo Ward', tr:'10 min walk', k:'meal', p:null, ph:'nakau', q:'Nakau なか卯 Shinsaibashi'},
    {s:'Morning', t:'Train to Tokyo', d:'9am Shin-Osaka → 11:27am arrival\nBooked on Klook', tr:'25 min subway, leave at 8am', time:'9:00am', k:'transit', f:'res', ph:'shin-osaka', q:'Shin-Osaka Station', short:'Shin-Osaka'},
    {s:'Morning', t:'Pokemon Legend Research', d:'Nihonbashi / Yaesu, near Tokyo Station\nPokémon Center DX', tr:'10 min walk', k:'shop', l:[IG('https://www.instagram.com/reels/DbqmECiOiIu/')], ph:'pokemon-tokyo-dx', q:'Pokémon Center TOKYO DX Nihonbashi Takashimaya', short:'Pokémon DX Nihonbashi'},
-   {s:'Lunch', t:'Hotel', d:'Check in', tr:'20 min subway', k:'hotel', ph:'mitsui-ginza', q:'Mitsui Garden Hotel Ginza Premier', short:'Hotel'},
+   {s:'Lunch', t:'Hotel', d:'Check in', tr:'20 min subway', k:'hotel', ph:'mitsui-gochome', q:'Mitsui Garden Hotel Ginza-gochome', short:'Hotel'},
    {s:'Afternoon', t:'Ginza Kimuraya', d:'Raisin bread. 10am – 8pm daily.', tr:'10 min walk', k:'meal', ph:'kimuraya', q:'Ginza Kimuraya', short:'Kimuraya'},
    {s:'Afternoon', t:'GU, PLST, Uniqlo, 3 Coins', d:'Ginza. Opens 11am.', tr:'5 min walk', k:'shop', ph:'uniqlo-ginza', q:'UNIQLO Ginza', short:'Uniqlo / GU Ginza'},
    {s:'Snack', t:'Age 3 Ginza', d:'Fried cream sandwich. 11am – 7pm daily.', tr:'15 min walk', k:'meal', ph:'age3', q:'Age.3 Ginza', short:'Age 3'},
-   {s:'Afternoon', t:'Hotel', d:'Rest', k:'hotel', ph:'mitsui-ginza', q:'Mitsui Garden Hotel Ginza Premier', short:'Hotel'},
+   {s:'Afternoon', t:'Hotel', d:'Rest', k:'hotel', ph:'mitsui-gochome', q:'Mitsui Garden Hotel Ginza-gochome', short:'Hotel'},
    {s:'Afternoon', t:'Parents: massage', d:'4pm reservation, booked via Instagram', tr:'30 min taxi', time:'4:00pm', k:'act', f:'res', p:null}
   ]},
  {id:'day-8', n:8, date:'2026-11-29', dow:'Sun', mon:'Nov', day:29, city:'tokyo', title:'Ginza, then home', where:'Tokyo (Ginza)', hotel:'ginza', startAtHotel:true, flight:{from:'NRT',to:'SEA',dep:'6:10pm',arr:'9:50am',al:'Japan Airlines'},
@@ -437,7 +438,7 @@ const COORDS = {
   'kitan':[34.6680359,135.502638],
   'shin-osaka':[34.7334658,135.5002547],
   'pokemon-tokyo-dx':[35.6802902,139.7742695],
-  'mitsui-ginza':[35.6671058,139.7632279],
+  'mitsui-gochome':[35.6688823,139.7667539],
   'kimuraya':[35.6716679,139.7652695],
   'uniqlo-ginza':[35.6737054,139.7651517],
   'age3':[35.6727584,139.7712945],
@@ -446,7 +447,7 @@ const COORDS = {
   'refa':[35.6686999,139.762832]
 };
 /* Places with a photo in img/<key>.jpg: Google Street View captures, or Wikimedia Commons photos (credited in CREDITS) */
-const PHOTOS = new Set(["3coins-harajuku", "age3", "amerikamura", "ameyoko", "assort", "dearbros", "donki", "goyemon", "harukas", "hitomukashi", "hokusai", "ichiran", "idaten", "imperial", "kajitsu", "kimuraya", "kisarazu", "kokuryu", "maruhana", "mercure", "mimaru", "mitsui-ginza", "nakamise", "nakau", "narita", "nike", "nintendo-shibuya", "parco", "pokemon-osaka-dx", "pokemon-tokyo-dx", "refa", "seven", "shin-osaka", "skytree", "sunshine", "tamagoken", "teamlab", "tokyo-station", "tsutenkaku", "umeda-sky", "uniqlo-asakusa", "uniqlo-ginza", "yakiniku-m", "zuicho"]);
+const PHOTOS = new Set(["3coins-harajuku", "age3", "amerikamura", "ameyoko", "assort", "dearbros", "donki", "goyemon", "harukas", "hitomukashi", "hokusai", "ichiran", "idaten", "imperial", "kajitsu", "kimuraya", "kisarazu", "kokuryu", "maruhana", "mercure", "mitsui-gochome", "mimaru", "nakamise", "nakau", "narita", "nike", "nintendo-shibuya", "parco", "pokemon-osaka-dx", "pokemon-tokyo-dx", "refa", "seven", "shin-osaka", "skytree", "sunshine", "tamagoken", "teamlab", "tokyo-station", "tsutenkaku", "umeda-sky", "uniqlo-asakusa", "uniqlo-ginza", "yakiniku-m", "zuicho"]);
 /* Wikimedia Commons photos: file page, photographer, license. The photo links to the file page. */
 const CREDITS = {
   'sunshine':{t:"File:Sunshine City Tokyo (3).jpg", a:"Maplestrip", l:"CC BY 3.0"},
@@ -459,7 +460,6 @@ const CREDITS = {
   'imperial':{t:"File:Imperial Palace Tokyo Nijubashi Bridge.JPG", a:"Chris 73", l:"CC BY-SA 3.0"},
   'kimuraya':{t:"File:Ginza Kimuraya Sohonten 2022-11-16.jpg", a:"Asanagi", l:"CC0"},
   'uniqlo-ginza':{t:"File:Maronie Gate Ginza.jpg", a:"ITA-ATU", l:"CC BY-SA 4.0"},
-  'mitsui-ginza':{t:"File:RICOH Company Head Office Building.JPG", a:"Kakidai", l:"CC BY-SA 4.0"},
   'kisarazu':{t:"File:Mitsui Outlet Park Kisarazu 01.JPG", a:"Abasaa", l:"Public domain"},
   'pokemon-tokyo-dx':{t:"File:2019 Takashimaya Nihonbashi.jpg", a:"Kakidai", l:"CC BY-SA 4.0"},
   'seven':{t:"File:7-Eleven Ikoma Motomachi 1-chome store.jpg", a:"Tokumeigakarinoaoshima", l:"CC BY-SA 4.0"},
@@ -475,9 +475,10 @@ const MAPS = {
   'day-5':{img:'img/map-5.jpg', c:[34.6589475,135.5066086], z:15},
   'day-6':{img:'img/map-6.jpg', c:[34.6628044,135.5013397], z:15},
   'day-7':{img:'img/map-7.jpg', c:[35.673698,139.7687487], z:16},
-  'day-8':{img:'img/map-8.jpg', c:[35.6736677,139.7584066], z:16}
+  'day-8':{img:'img/map-8.jpg', c:[35.674465,139.76017], z:16, w:957, h:599, cx:405.5, cy:299.5, s:0.75034}
 };
-const MAP_W = 792, MAP_H = 624, MAP_CX = 416, MAP_CY = 312, MAP_S = (1456/1634)*0.75;
+/* capture geometry: image size, where the map center sits in it, image px per CSS px (a map can override each) */
+const MAPD = {w:792, h:624, cx:416, cy:312, s:(1456/1634)*0.75};
 /* give every stop, split entry and hotel its exact pin */
 Object.values(HOTELS).forEach(h => { if (h.ph && COORDS[h.ph]) h.p = COORDS[h.ph]; });
 DAYS.forEach(d => d.stops.forEach(st => {
@@ -600,6 +601,7 @@ function dayMap(day){
   if (!pts.length || !m) return '';
 
   // Google Maps capture: image px per meter from the capture's zoom (Web Mercator) and latitude
+  const MAP_W = m.w||MAPD.w, MAP_H = m.h||MAPD.h, MAP_CX = m.cx||MAPD.cx, MAP_CY = m.cy||MAPD.cy, MAP_S = m.s||MAPD.s;
   const W=MAP_W, H=MAP_H, cLat=m.c[0], cLng=m.c[1], cosL=Math.cos(cLat*Math.PI/180);
   const mpp = 156543.03*cosL/Math.pow(2,m.z)/MAP_S;
   const proj = ll => [ MAP_CX + (ll[1]-cLng)*111320*cosL/mpp, MAP_CY - (ll[0]-cLat)*111320/mpp ];
@@ -672,7 +674,7 @@ function dayMap(day){
   s += '<text x="'+(bx+barPx+10).toFixed(1)+'" y="'+(by+6)+'" font-family="var(--mono)" font-weight="600" font-size="17" fill="#16213A" paint-order="stroke" stroke="#fff" stroke-width="5">'+fmtKm(bar)+'</text>';
   s += '</svg>';
   const live = dayRouteUrl(day) || (MAPAPP === 'apple' ? 'https://maps.apple.com/?ll='+cLat+','+cLng+'&z='+m.z : 'https://www.google.com/maps/@'+cLat+','+cLng+','+m.z+'z');
-  return '<a class="mapwrap" href="'+live+'" target="_blank" rel="noopener" aria-label="Open the route for the day"><img src="'+m.img+'" width="'+W+'" height="'+H+'" alt="Google Maps capture of '+esc(day.where)+'" loading="lazy" decoding="async">'+s+'<span class="tip">Tap for the route</span></a>';
+  return '<a class="mapwrap" href="'+live+'" target="_blank" rel="noopener" aria-label="Open the route for the day"><img src="'+m.img+'" width="'+W+'" height="'+H+'" alt="Google Maps capture of '+esc(day.where)+'" loading="lazy" decoding="async">'+s+'</a>';
 }
 
 /* whole-day route: hotel → pinned stops, skipping far-away ones, as a Google Maps walking overview */
@@ -778,7 +780,7 @@ function renderDay(day){
     const route = dayRouteUrl(day);
     h += '<div class="mapcard"><div class="maphead"><span class="eyebrow">Map of the day · '+(day.city==='osaka'?'Osaka':'Tokyo')+'</span><span class="seg" role="group" aria-label="Open links in"><button class="mapapp" data-app="google" aria-pressed="'+(MAPAPP==='google')+'">Google</button><button class="mapapp" data-app="apple" aria-pressed="'+(MAPAPP==='apple')+'">Apple</button></span></div>'+map+
       '<div class="legend">'+(hotel && day.startAtHotel ? '<span class="h"><b style="color:var(--ink)">H</b>Hotel</span>' : '')+legend+'</div>'+
-      (route ? '<div class="mapfoot"><a class="btn primary" href="'+route+'" target="_blank" rel="noopener">'+SV.route+'Whole day in '+(MAPAPP==='apple'?'Apple':'Google')+' Maps</a></div>' : '')+'</div>';
+      (route ? '<div class="mapfoot"><a class="btn primary" href="'+route+'" target="_blank" rel="noopener">'+SV.route+'Whole day in '+(MAPAPP==='apple'?'Apple':'Google')+' Maps</a><span class="maphint">or tap the map</span></div>' : '')+'</div>';
   }
   if (day.flight) h += flightCard(day);
   h += '<div class="key"><span>'+CAT.food+'Food</span><span>'+CAT.shop+'Shopping</span><span>'+CAT.hotel+'Hotel</span><span>'+CAT.train+'Travel</span><span>'+CAT.act+'Activity</span></div>';
