@@ -300,9 +300,9 @@ const DAYS = [
    {s:'Morning', t:'Asakusa street food', d:'Melon pan, crepes, sweet potato', tr:'20 min subway', k:'meal', ph:'nakamise', q:'Nakamise-dori Asakusa', short:'Asakusa'},
    {s:'Morning', t:'Uniqlo sale', d:'Opens 10am', k:'shop', ph:'uniqlo-asakusa', q:'UNIQLO Asakusa', short:'Uniqlo'},
    {s:'Lunch', t:'Katsudon-ya Zuicho', d:'Opens 11:30am. Get there at 11.', tr:'30 min taxi, leave 10:30am', time:'11:00am', k:'meal', l:[IG('https://www.instagram.com/reels/DEvxkChyalM/')], ph:'zuicho', q:'Katsudon-ya Zuicho Shibuya', short:'Zuicho'},
-   {s:'Afternoon', t:'Nintendo Tokyo / Pokemon Shibuya', tr:'10 min walk', k:'shop', ph:'nintendo-shibuya', q:'Nintendo TOKYO Shibuya PARCO', short:'Nintendo / Pokémon'},
+   {s:'Afternoon', t:'Nintendo Tokyo, Pokemon Shibuya, Stussy Shibuya', tr:'10 min walk', k:'shop', ph:'nintendo-shibuya', q:'Nintendo TOKYO Shibuya PARCO', short:'Nintendo / Pokémon / Stussy', l:[{t:'Stussy Shibuya', q:'Stüssy Shibuya Chapter', k:'map'}]},
    {s:'Afternoon', t:'3 Coins Harajuku / Mooosh Squishy', tr:'15 min walk', k:'shop', ph:'3coins-harajuku', q:'3COINS Harajuku Takeshita Street', short:'3 Coins / Mooosh'},
-   {s:'Snack', t:'Nike Running Analysis', d:'Harajuku. Need reservations.', tr:'5 min taxi', time:'3:00pm', k:'shop', f:'res', ph:'nike', q:'Nike Harajuku', short:'Nike Harajuku'},
+   {s:'Snack', t:'Nike Running Analysis', d:'Harajuku. 3pm reservation.', tr:'5 min taxi', time:'3:00pm', k:'shop', f:'res', ph:'nike', q:'Nike Harajuku', short:'Nike Harajuku'},
    {s:'Afternoon', t:'Sunshine City', tr:'20 min taxi', k:'shop', ph:'sunshine', q:'Sunshine City Ikebukuro', short:'Sunshine City'},
    {s:'Afternoon', t:'7-11 snacks', k:'meal', p:null, ph:'seven', q:'7-Eleven Higashi-Ikebukuro'},
    {s:'Dinner', t:'TAMAGO-KEN Ikebukuro Branch', d:'Omurice', tr:'5 min walk', k:'meal', l:[IG('https://www.instagram.com/p/DQB7tOOkZO1/?img_index=2&igsh=eDQyejdwZ2hwcjl5')], ph:'tamagoken', q:'Kanda Tamagoken Ikebukuro WACCA', short:'Tamago-ken'},
@@ -326,6 +326,7 @@ const DAYS = [
   stops:[
    {s:'Breakfast', t:'Nakau', d:'Chuo Ward', tr:'10 min walk', k:'meal', p:null, ph:'nakau', q:'Nakau なか卯 Shinsaibashi'},
    {s:'Morning', t:'Round1 Stadium Spo-Cha', tr:'10 min walk', k:'act', ph:'round1', q:'Round1 Stadium Sennichimae', short:'Round1'},
+   {s:'Morning', t:'Stussy Osaka', d:'Opens 11am', k:'shop', ph:'stussy-osaka', q:'Stüssy Osaka Chapter', short:'Stussy'},
    {s:'Lunch', k:'meal', split:[
       {who:'Parents', t:'Wagyu Hokusai', tr:'3 min walk', l:[IG('https://www.instagram.com/reels/DdGyMxPuD4B/')], ph:'hokusai', q:'Wagyu Hokusai Osaka Namba'},
       {who:'Kids', t:'Ichiran Beef Dotonbori', ph:'ichiran', q:'Ichiran Dotonbori'}
@@ -353,7 +354,7 @@ const DAYS = [
  {id:'day-6', n:6, date:'2026-11-27', dow:'Fri', mon:'Nov', day:27, city:'osaka', title:'Haircut, Amerikamura, Tsutenkaku', where:'Osaka', hotel:'namba', startAtHotel:true,
   stops:[
    {s:'Breakfast', t:'Nakau', d:'Chuo Ward', tr:'10 min walk', k:'meal', p:null, ph:'nakau', q:'Nakau なか卯 Shinsaibashi'},
-   {s:'Morning', t:'Assort Osaka Haircut', d:'10am reservation via Google', tr:'10 min walk', time:'10:00am', k:'act', book:true, ph:'assort', q:'ASSORT Osaka hair salon Kitahorie', short:'Assort haircut'},
+   {s:'Morning', t:'Assort Osaka Haircut', d:'10am reservation via Google', tr:'10 min walk', time:'10:00am', k:'act', f:'res', ph:'assort', q:'ASSORT Osaka hair salon Kitahorie', short:'Assort haircut'},
    {s:'Lunch', k:'meal', split:[
       {who:'Parents', t:'Hitomukashi', d:'14-26 Nanbasennichimae, Chuo Ward, Osaka 542-0075', tr:'15 min subway', l:[IG('https://www.instagram.com/reels/DYaq8eQzUH3/')], ph:'hitomukashi', q:'Hitomukashi 14-26 Nanbasennichimae Osaka'},
       {who:'Kids', t:'Ichiran Beef Dotonbori', ph:'ichiran', q:'Ichiran Dotonbori'}
@@ -377,8 +378,8 @@ const DAYS = [
    {s:'Afternoon', t:'Ginza Kimuraya', d:'Raisin bread. 10am – 8pm daily.', tr:'10 min walk', k:'meal', ph:'kimuraya', q:'Ginza Kimuraya', short:'Kimuraya'},
    {s:'Afternoon', t:'GU, PLST, Uniqlo, 3 Coins', d:'Ginza. Opens 11am.', tr:'5 min walk', k:'shop', ph:'uniqlo-ginza', q:'UNIQLO Ginza', short:'Uniqlo / GU Ginza'},
    {s:'Snack', t:'Age 3 Ginza', d:'Fried cream sandwich. 11am – 7pm daily.', tr:'15 min walk', k:'meal', ph:'age3', q:'Age.3 Ginza', short:'Age 3'},
-   {s:'Afternoon', t:'Hotel', d:'Rest', k:'hotel', ph:'mitsui-gochome', q:'Mitsui Garden Hotel Ginza-gochome', short:'Hotel'},
-   {s:'Afternoon', t:'Parents: massage', d:'4pm reservation, booked via Instagram', tr:'30 min taxi', time:'4:00pm', k:'act', f:'res', p:null}
+   {s:'Afternoon', t:'Parents: massage', d:'4pm reservation, booked via Instagram', tr:'30 min taxi', time:'4:00pm', k:'act', f:'res', p:null},
+   {s:'Afternoon', t:'Dad - coffee with MJ (Hayakawa-tel) @ 4pm', d:'Hayakawa-tei coffee stand, Higashinakano, Nakano City', time:'4:00pm', k:'meal', f:'res', ph:'hayakawa', q:'Hayakawa-tei Higashinakano', short:'Coffee (Dad)', noRoute:true}
   ]},
  {id:'day-8', n:8, date:'2026-11-29', dow:'Sun', mon:'Nov', day:29, city:'tokyo', title:'Ginza, then home', where:'Tokyo (Ginza)', hotel:'ginza', startAtHotel:true, flight:{from:'NRT',to:'SEA',dep:'6:10pm',arr:'9:50am',al:'Japan Airlines'},
   stops:[
@@ -444,10 +445,12 @@ const COORDS = {
   'age3':[35.6727584,139.7712945],
   'imperial':[35.6802297,139.7535852],
   'kisarazu':[35.4355861,139.9346386],
-  'refa':[35.6686999,139.762832]
+  'refa':[35.6686999,139.762832],
+  'stussy-osaka':[34.6722299,135.4980929],
+  'hayakawa':[35.7029441,139.6857259]
 };
 /* Places with a photo in img/<key>.jpg: Google Street View captures, or Wikimedia Commons photos (credited in CREDITS) */
-const PHOTOS = new Set(["3coins-harajuku", "age3", "amerikamura", "ameyoko", "assort", "dearbros", "donki", "goyemon", "harukas", "hitomukashi", "hokusai", "ichiran", "idaten", "imperial", "kajitsu", "kimuraya", "kisarazu", "kokuryu", "maruhana", "mercure", "mitsui-gochome", "mimaru", "nakamise", "nakau", "narita", "nike", "nintendo-shibuya", "parco", "pokemon-osaka-dx", "pokemon-tokyo-dx", "refa", "seven", "shin-osaka", "skytree", "sunshine", "tamagoken", "teamlab", "tokyo-station", "tsutenkaku", "umeda-sky", "uniqlo-asakusa", "uniqlo-ginza", "yakiniku-m", "zuicho"]);
+const PHOTOS = new Set(["3coins-harajuku", "age3", "amerikamura", "ameyoko", "assort", "dearbros", "donki", "goyemon", "harukas", "hitomukashi", "hokusai", "ichiran", "idaten", "imperial", "kajitsu", "kimuraya", "kisarazu", "kokuryu", "maruhana", "mercure", "stussy-osaka", "hayakawa", "mitsui-gochome", "mimaru", "nakamise", "nakau", "narita", "nike", "nintendo-shibuya", "parco", "pokemon-osaka-dx", "pokemon-tokyo-dx", "refa", "seven", "shin-osaka", "skytree", "sunshine", "tamagoken", "teamlab", "tokyo-station", "tsutenkaku", "umeda-sky", "uniqlo-asakusa", "uniqlo-ginza", "yakiniku-m", "zuicho"]);
 /* Wikimedia Commons photos: file page, photographer, license. The photo links to the file page. */
 const CREDITS = {
   'sunshine':{t:"File:Sunshine City Tokyo (3).jpg", a:"Maplestrip", l:"CC BY 3.0"},
@@ -501,7 +504,7 @@ function qpin(q){
     Object.values(HOTELS).forEach(h => { if (h.q && h.p) QP[h.q] = h.p; });
     DAYS.forEach(d => d.stops.forEach(st => { if (st.q && st.p) QP[st.q] = st.p; (st.split||[]).forEach(sp => { if (sp.q && sp.p) QP[sp.q] = sp.p; }); }));
   }
-  return QP[q] || null;
+  return QP[q] || ({'Stüssy Shibuya Chapter':[35.6634907,139.6999421]})[q] || null;
 }
 const mapsSearch = q => {
   if (MAPAPP === 'apple'){ const p = qpin(q); return 'https://maps.apple.com/?q=' + enc(q) + (p ? '&ll=' + p[0] + ',' + p[1] : ''); }
@@ -680,7 +683,7 @@ function dayMap(day){
 /* whole-day route: hotel → pinned stops, skipping far-away ones, as a Google Maps walking overview */
 function dayRouteUrl(day){
   const hotel = day.hotel ? HOTELS[day.hotel] : null;
-  const pts=[]; day.stops.forEach(st => { const p=stopPin(st), q=stopQ(st); if (p && q) pts.push({p,q}); });
+  const pts=[]; day.stops.forEach(st => { const p=stopPin(st), q=stopQ(st); if (p && q && !st.noRoute) pts.push({p,q}); });
   if (pts.length < 2) return null;
   const cLat = median(pts.map(x=>x.p[0])), cLng = median(pts.map(x=>x.p[1]));
   let near = pts.filter(x => haversine(x.p,[cLat,cLng]) < 12000);
@@ -715,7 +718,9 @@ function chipHtml(st){
   return out.join('');
 }
 function linkBtns(links){
-  return (links||[]).map(l => '<a class="btn media" href="'+esc(l.u)+'" target="_blank" rel="noopener">'+(l.k==='yt'?SV.play:l.k==='ig'?SV.ig:SV.link)+esc(l.t)+'</a>').join('');
+  return (links||[]).map(l => l.q
+    ? '<a class="btn" href="'+mapsSearch(l.q)+'" target="_blank" rel="noopener">'+SV.pin+esc(l.t)+'</a>'
+    : '<a class="btn media" href="'+esc(l.u)+'" target="_blank" rel="noopener">'+(l.k==='yt'?SV.play:l.k==='ig'?SV.ig:SV.link)+esc(l.t)+'</a>').join('');
 }
 function stopCard(day, st, i, prevQ){
   const pin = stopPin(st), q = stopQ(st);
@@ -835,8 +840,8 @@ function renderStay(){
 }
 
 /* Week at a glance: the planner sheet grid, rows 4 to 15, columns B to J, as typed (yellow = res, pink = must, gray = fly) */
-const WEEK = [{"l": "Breakfast", "meal": true, "c": [["Leave for Airport\n7:30am", "res"], ["Flight", "fly"], ["NAKAU\n(15min subway)", ""], ["NAKAU\n(15min Subway)", ""], ["Nakau - Chuo Ward\n(10min walk)", ""], ["Nakau - Chuo Ward\n(10min walk)", ""], ["Nakau - Chuo Ward\n(10min walk)", ""], ["Nakau - Chuo Ward\n(10min walk)", ""], ["NAKAU\n(10min walk)", ""]]}, {"l": "Morning Activity", "meal": false, "c": [null, null, ["Asakusa street food\nMelon Pan, Crepes, Sweet Potato\n(20min subway)", ""], ["Train to Osaka\n10am Tokyo Station\n12:30pm Arrival\n(15min car -\nLeave at 9:15am)\nKlook", "res"], ["Round1 Stadium Spo-Cha\n(10min walk)", ""], null, null, ["Train to Tokyo\n9am Shin Osaka\n11:27am Arrival\n(25min subway -\nLeave at 8am)\nKlook", "res"], ["Imperial Palace Run", ""]]}, {"l": "Morning Activity", "meal": false, "c": [null, null, ["Uniqlo sale\n(Opens 10am)", ""], ["Hotel\n(25min subway)", ""], null, ["Mitsui Shopping Park LaLaport KADOMA MITSUI OUTLET PARK OSAKA KADOMA\n(30min taxi)\n(Open 10am)", ""], ["Assort Osaka Haircut\n(10min walk)\n10am Reservation\nGoogle", ""], ["Pokemon Legend Research\nNihonbashi / Yaesu\n(Near Tokyo Station)\n(10min walk)\n\nPokemon Center DX", ""], ["Pokémon Pika Pika Festival 2026\nMitsui Outlet Park Kisarazu\n3pm Pikachu", ""]]}, {"l": "Lunch", "meal": true, "c": [["Depart to Tokyo\nJapan Airlines\n11:50am", "fly"], null, ["Katsudon-ya Zuicho\n(11:30am Open - Get there at 11)\n(30min taxi - leave 10:30am)", ""], ["Ichiran Beef Dotonbori\n(3min walk)", ""], ["Parents - Wagyu Hokusai\n(3min walk)\n\nKids - Ichiran Beef Dotonbori", ""], null, ["Parents - Hitomukashi\n(14-26 Nanbasennichimae, Chuo Ward, Osaka, 542-0075)\n(15min subway)\n\nKids - Ichiran Beef Dotonbori", ""], ["Hotel\n(20min subway)", ""], ["Refa hair shop", ""]]}, {"l": "Afternoon Activity", "meal": false, "c": [null, null, ["Nintendo Tokyo / Pokemon Shibuya\n(10min walk)", ""], ["Pokémon Center DX\n(Namba)\n(10min walk)", ""], ["goyemon\n(Sandals)\n(15min walk)", ""], null, ["Amerikamura\n(Osaka's Harajuku)\n(5min walk)", ""], ["Ginza Kimuraya\n(dude raisin bread, 10-8pm daily)\n(10min walk)", ""], ["7-11 Photos", ""]]}, {"l": "Afternoon Activity", "meal": false, "c": [null, null, ["3 Coins Harajuku / Mooosh Squishy\n(15min walk)", ""], ["Parco Mall\n(5min walk)", ""], ["Miracle World\n(10min subway)\n3pm Reservation\nKlook", "res"], null, ["Tsutenkaku Tower Slide\n(20min subway)", ""], ["GU, PLST, Uniqlo, 3 Coins\nGinza\n(Open 11am)\n(5min walk)", ""], ["Leave for Narita Airport\n2pm\n\nTaxi Pickup\nKlook", "res"]]}, {"l": "Snack", "meal": true, "c": [null, null, ["Nike Running Analysis\n(Harajuku)\n(5min taxi)\nNeed Reservations (3pm)", "res"], ["Kajitsu no hana Shinsaibashi\n(Daifuku)\n(6min walk)\n\nDekasan (Egg Sandwich)", ""], ["Candy Apple\n(5min walk)", ""], ["Idaten\n(If we haven't eaten)\n(35min taxi)", ""], null, ["Age 3 Ginza\n(cream sandwich fried, 11-7pm daily)\n(15min walk)", ""], null]}, {"l": "Afternoon Activity", "meal": false, "c": [null, ["Arrive\n3:05pm", "fly"], ["Sunshine City\n(20min Taxi)", ""], ["Don Quijote Ferris Wheel\n(5min walk)", ""], null, ["Hotel", ""], ["Hotel\n(20min subway)", ""], ["Hotel", ""], ["Depart to Seattle\nJapan Air\n6:10pm", "fly"]]}, {"l": "Afternoon Activity", "meal": false, "c": [null, ["Taxi Pickup\nKlook", "res"], ["7-11 snacks", ""], ["3 Coins\n(5min walk)", ""], ["Hotel", ""], ["harukas 300\n4pm for 4:45pm sunset\n(20min subway)", ""], ["Shinsaibashi Sunbowl\nBowling\n(5min walk)", ""], ["parents - massage\n(30min taxi)\n4pm reservation\nInstagram", "res"], null]}, {"l": "Dinner", "meal": true, "c": [null, ["Ameyoko Market\n(15min walk)", ""], ["TAMAGO-KEN\nIkebukuro Branch\nOmurice\n(5min walk)", ""], ["Matsusakagyu Yakiniku M Hanare Branch\n(5min walk)\n5pm Reservation\nGoogle", "res"], ["Ramen Ichiza Namba\n(eat at 5pm) - (10min walk)\n🍜 Bettei Takei (fish-based tsukemen)\n🍜 Kaneda (Creamy chicken paitan)\n🍜 Gyukkoshi (Wagyu paitan ramen)", ""], ["Parents - maruhana shinsaibashi (AYCE Crab)\n(20min subway)\n6:30pm Reservation\nTabelog\n\nKids - Dearbros (Omurice)\n(20min subway)", "res"], ["Parents - Kokuryu Osaka／Ebisubashi (Omakase)\n(10min walk)\n5pm Reservation\nGoogle\n\nKids - Kitan Hibiki (Burger)\n(10min walk)", "res"], null, ["Arrive\n9:50am", "fly"]]}, {"l": "Evening Activity", "meal": false, "c": [null, ["Ship luggage to Osaka", "must"], ["Hotel or Tokyo sky tree\n(30min taxi)", ""], ["Umeda Sky + Nintendo Osaka\n(20min taxi)\n(Nintendo closes at 8pm)", ""], ["teamLab\n(30min subway)\n6pm Reservation\nKlook", "res"], ["Ship luggage to Tokyo", "must"], ["7-11 snacks", ""], null, null]}];
-const WEEK_HOTELS = [{from:1, span:2, h:'ueno'}, {from:3, span:4, h:'namba'}, {from:7, span:1, h:'ginza'}];
+const WEEK = [{"l": "Breakfast", "meal": true, "c": [["Leave for Airport\n7:30am", "res", 3], ["Flight", "fly", 7], ["NAKAU\n(15min subway)", ""], ["NAKAU\n(15min Subway)", ""], ["Nakau - Chuo Ward\n(10min walk)", ""], ["Nakau - Chuo Ward\n(10min walk)", ""], ["Nakau - Chuo Ward\n(10min walk)", ""], ["Nakau - Chuo Ward\n(10min walk)", ""], ["NAKAU\n(10min walk)", ""]]}, {"l": "Morning Activity", "meal": false, "c": [0, 0, ["Asakusa street food\nMelon Pan, Crepes, Sweet Potato\n(20min subway)", ""], ["Train to Osaka\n10am Tokyo Station\n12:30pm Arrival\n(15min car -\nLeave at 9:15am)\nKlook", "res"], ["Round1 Stadium Spo-Cha\n(10min walk)", ""], null, null, ["Train to Tokyo\n9am Shin Osaka\n11:27am Arrival\n(25min subway -\nLeave at 8am)\nKlook", "res"], ["Imperial Palace Run", ""]]}, {"l": "Morning Activity", "meal": false, "c": [0, 0, ["Uniqlo sale\n(Opens 10am)", ""], ["Hotel\n(25min subway)", ""], ["Stussy Osaka\n(open 11am)", ""], ["Mitsui Shopping Park LaLaport KADOMA MITSUI OUTLET PARK OSAKA KADOMA\n(30min taxi)\n(Open 10am)", "", 4], ["Assort Osaka Haircut\n(10min walk)\n10am Reservation\nGoogle", "res"], ["Pokemon Legend Research\nNihonbashi / Yaesu\n(Near Tokyo Station)\n(10min walk)\n\nPokemon Center DX", ""], ["Pokémon Pika Pika Festival 2026\nMitsui Outlet Park Kisarazu\n3pm Pikachu", ""]]}, {"l": "Lunch", "meal": true, "c": [["Depart to Tokyo\nJapan Airlines\n11:50am", "fly", 8], 0, ["Katsudon-ya Zuicho\n(11:30am Open - Get there at 11)\n(30min taxi - leave 10:30am)", ""], ["Ichiran Beef Dotonbori\n(3min walk)", ""], ["Parents - Wagyu Hokusai\n(3min walk)\n\nKids - Ichiran Beef Dotonbori", ""], 0, ["Parents - Hitomukashi\n(14-26 Nanbasennichimae, Chuo Ward, Osaka, 542-0075)\n(15min subway)\n\nKids - Ichiran Beef Dotonbori", ""], ["Hotel\n(20min subway)", ""], ["Refa hair shop", ""]]}, {"l": "Afternoon Activity", "meal": false, "c": [0, 0, ["Nintendo Tokyo\nPokemon Shibuya\nStussy Shibuya\n(10min walk)", ""], ["Pokémon Center DX\n(Namba)\n(10min walk)", ""], ["goyemon\n(Sandals)\n(15min walk)", ""], 0, ["Amerikamura\n(Osaka's Harajuku)\n(5min walk)", ""], ["Ginza Kimuraya\n(dude raisin bread, 10-8pm daily)\n(10min walk)", ""], ["7-11 Photos", ""]]}, {"l": "Afternoon Activity", "meal": false, "c": [0, 0, ["3 Coins Harajuku\nMooosh Squishy\n(15min walk)", ""], ["Parco Mall\n(5min walk)", ""], ["Miracle World\n(10min subway)\n3pm Reservation\nKlook", "res"], 0, ["Tsutenkaku Tower Slide\n(20min subway)", ""], ["GU, PLST, Uniqlo, 3 Coins\nGinza\n(Open 11am)\n(5min walk)", ""], ["Leave for Narita Airport\n2pm\n\nTaxi Pickup\nKlook", "res", 2]]}, {"l": "Snack", "meal": true, "c": [0, 0, ["Nike Running Analysis\n(Harajuku)\n(5min taxi)\n3pm Reservations", "res"], ["Kajitsu no hana Shinsaibashi\n(Daifuku)\n(6min walk)\n\nDekasan (Egg Sandwich)", ""], ["Candy Apple\n(5min walk)", ""], ["Idaten\n(If we haven't eaten)\n(35min taxi)", ""], null, ["Age 3 Ginza\n(cream sandwich fried, 11-7pm daily)\n(15min walk)", ""], 0]}, {"l": "Afternoon Activity", "meal": false, "c": [0, ["Arrive\n3:05pm", "fly"], ["Sunshine City\n(20min Taxi)", ""], ["Don Quijote Ferris Wheel\n(5min walk)", ""], null, ["Hotel", ""], ["Hotel\n(20min subway)", ""], ["parents - massage\n(30min taxi)\n4pm reservation\nInstagram", "res"], ["Depart to Seattle\nJapan Air\n6:10pm", "fly", 2]]}, {"l": "Afternoon Activity", "meal": false, "c": [0, ["Taxi Pickup\nKlook", "res"], ["7-11 snacks", ""], ["3 Coins\n(5min walk)", ""], ["Hotel", ""], ["harukas 300\n4pm for 4:45pm sunset\n(20min subway)", ""], ["Shinsaibashi Sunbowl\nBowling\n(5min walk)", ""], ["Dad - coffee with MJ (Hayakawa-tel) @ 4pm", "res"], 0]}, {"l": "Dinner", "meal": true, "c": [0, ["Ameyoko Market\n(15min walk)", ""], ["TAMAGO-KEN\nIkebukuro Branch\nOmurice\n(5min walk)", ""], ["Matsusakagyu Yakiniku M Hanare Branch\n(5min walk)\n5pm Reservation\nGoogle", "res"], ["Ramen Ichiza Namba\n(eat at 5pm) - (10min walk)\n🍜 Bettei Takei (fish-based tsukemen)\n🍜 Kaneda (Creamy chicken paitan)\n🍜 Gyukkoshi (Wagyu paitan ramen)", ""], ["Parents - maruhana shinsaibashi (AYCE Crab)\n(20min subway)\n6:30pm Reservation\nTabelog\n\nKids - Dearbros (Omurice)\n(20min subway)", "res"], ["Parents - Kokuryu Osaka／Ebisubashi (Omakase)\n(10min walk)\n5pm Reservation\nGoogle\n\nKids - Kitan Hibiki (Burger)\n(10min walk)", "res"], null, ["Arrive\n9:50am", "fly", 2]]}, {"l": "Evening Activity", "meal": false, "c": [0, ["Ship luggage to Osaka", "must"], ["Hotel or Tokyo sky tree\n(30min taxi)", ""], ["Umeda Sky + Nintendo Osaka\n(20min taxi)\n(Nintendo closes at 8pm)", ""], ["teamLab\n(30min subway)\n6pm Reservation\nKlook", "res"], ["Ship luggage to Tokyo", "must"], ["7-11 snacks", ""], null, 0]}];
+const WEEK_HOTELS = [{from:1, span:2, h:'ueno'}, {from:3, span:4, h:'namba'}, {from:7, span:2, h:'ginza'}];
 let WEEK_OPEN = false;
 function renderWeek(){
   let h = '<div class="wk-scroll"><table class="wk"><thead><tr><th class="wk-lab"></th>';
@@ -845,15 +850,17 @@ function renderWeek(){
   WEEK.forEach(r => {
     h += '<tr class="'+(r.meal?'meal':'')+'"><th class="wk-lab">'+esc(r.l)+'</th>';
     r.c.forEach((c, i) => {
+      if (c === 0) return;                 // covered by a merged cell above
       if (!c){ h += '<td></td>'; return; }
       const lines = c[0].split('\n'); const t = lines.shift(); const rest = lines.join('\n').trim();
-      h += '<td class="'+c[1]+'" data-day="'+DAYS[i].id+'"><b>'+esc(t)+'</b>'+(rest?'<span>'+esc(rest)+'</span>':'')+'</td>';
+      h += '<td class="'+c[1]+'"'+(c[2]?' rowspan="'+c[2]+'"':'')+' data-day="'+DAYS[i].id+'"><b>'+esc(t)+'</b>'+(rest?'<span>'+esc(rest)+'</span>':'')+'</td>';
     });
     h += '</tr>';
   });
   h += '<tr class="hot"><th class="wk-lab">Hotel</th><td></td>';
   WEEK_HOTELS.forEach(x => { const ho = HOTELS[x.h]; h += '<td colspan="'+x.span+'" data-day="'+DAYS[x.from].id+'"><b>'+esc(ho.name)+'</b><span>'+esc(ho.nights)+'</span></td>'; });
-  h += '<td></td></tr></tbody></table></div>';
+  const used = 1 + WEEK_HOTELS.reduce((n, x) => n + x.span, 0);
+  h += '<td></td>'.repeat(Math.max(0, DAYS.length - used)) + '</tr></tbody></table></div>';
   h += '<div class="wk-key"><span class="k res">Reserved or timed</span><span class="k must">Must do</span><span class="k fly">Flight</span><span>Tap any day to open it</span></div>';
   return h;
 }
