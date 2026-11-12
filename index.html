@@ -468,8 +468,6 @@ const CREDITS = {
   'seven':{t:"File:7-Eleven Ikoma Motomachi 1-chome store.jpg", a:"Tokumeigakarinoaoshima", l:"CC BY-SA 4.0"},
   'nakau':{t:"File:Nakau JR Noda store.jpg", a:"Tokumeigakarinoaoshima", l:"CC BY-SA 4.0"}
 };
-/* photos that sit at the top of the site folder instead of in img/ */
-const TOP_IMG = new Set(['mitsui-gochome','stussy-osaka','hayakawa']);
 const commonsUrl = t => 'https://commons.wikimedia.org/wiki/' + encodeURIComponent(t.replace(/ /g,'_'));
 /* Map of the day: a Google Maps capture (792 x 624, 0.6683 image px per CSS px at the capture) with its center and zoom */
 const MAPS = {
@@ -480,7 +478,7 @@ const MAPS = {
   'day-5':{img:'img/map-5.jpg', c:[34.6589475,135.5066086], z:15},
   'day-6':{img:'img/map-6.jpg', c:[34.6628044,135.5013397], z:15},
   'day-7':{img:'img/map-7.jpg', c:[35.673698,139.7687487], z:16},
-  'day-8':{img:'map-8.jpg', c:[35.674465,139.76017], z:16, w:957, h:599, cx:405.5, cy:299.5, s:0.75034}
+  'day-8':{img:'img/map-8.jpg', c:[35.674465,139.76017], z:16, w:957, h:599, cx:405.5, cy:299.5, s:0.75034}
 };
 /* capture geometry: image size, where the map center sits in it, image px per CSS px (a map can override each) */
 const MAPD = {w:792, h:624, cx:416, cy:312, s:(1456/1634)*0.75};
@@ -737,7 +735,7 @@ function stopCard(day, st, i, prevQ){
     const href = c ? commonsUrl(c.t) : mapsSearch(q||name);
     const alt = c ? esc(name)+' (photo: '+esc(c.a)+', '+esc(c.l)+', Wikimedia Commons)' : 'Google Street View outside '+esc(name);
     const credit = c ? '<div class="credit">Photo: '+esc(c.a)+' · '+esc(c.l)+' · <a href="'+href+'" target="_blank" rel="noopener">Wikimedia Commons</a></div>' : '';
-    return '<a href="'+href+'" target="_blank" rel="noopener"><img class="photo" src="'+(TOP_IMG.has(key)?'':'img/')+key+'.jpg" width="900" height="600" loading="lazy" decoding="async" alt="'+alt+'"></a>' + credit;
+    return '<a href="'+href+'" target="_blank" rel="noopener"><img class="photo" src="img/'+key+'.jpg" width="900" height="600" loading="lazy" decoding="async" alt="'+alt+'"></a>' + credit;
   };
   let body='';
   if (st.split){
